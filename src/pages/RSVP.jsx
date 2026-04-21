@@ -69,8 +69,8 @@ export default function RSVP() {
   const anyAttending = attendance.some(a => a.attending === true)
 
   return (
-    <main className="bg-paper min-h-[80svh]">
-      <section className="bg-palmetto py-16 px-6 text-center velvet-surface">
+    <main className="bg-paper min-h-[80svh] mb-10">
+      <section className="bg-palmetto py-16 px-6 text-center velvet-surface mb-12">
         <h1 className="font-serif text-paper text-5xl md:text-6xl mb-4 text-gilt">RSVP</h1>
         <p className="font-sans text-paper/70 text-xs tracking-[0.25em] uppercase">
           Kindly reply by {RSVP_DEADLINE}
