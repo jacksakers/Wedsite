@@ -38,6 +38,8 @@ Body: A clean, highly readable Sans-Serif font (e.g., Lato or Montserrat).
 
 Imagery: Subtle background motifs of Magnolia leaves, Palmetto trees, and botanical sketches. Engagement photos will be featured prominently with soft, rounded corners and drop shadows.
 
+NEEDS TO WORK WELL ON BOTH DESKTOP AND MOBILE!!
+
 4. Core Features (MVP)
 
 Landing Page: Beautiful hero image (engagement photo), countdown timer to March 13, and the general date/location.

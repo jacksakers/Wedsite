@@ -1,0 +1,40 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ─── Helper functions ────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Checks config/admins in Firestore. The firestore() function is available
+    // in Storage rules (rules_version '2' required).
+    function isAdmin() {
+      return isAuthenticated()
+          && request.auth.uid in firestore.get(
+               /databases/(default)/documents/config/admins
+             ).data.uids;
+    }
+
+    // ─── /photos ─────────────────────────────────────────────────────────────
+    // Only admins may upload or delete couple photos.
+    // Any authenticated user may read (needed to render photo URLs in the app).
+    // Files must be images and no larger than 15 MB.
+    match /photos/{filename} {
+      allow read:   if isAuthenticated();
+      allow create: if isAdmin()
+                    && request.resource.size   <= 15 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+      allow delete: if isAdmin();
+      // Disallow direct in-place updates — delete and re-upload instead.
+      allow update: if false;
+    }
+
+    // Deny everything else by default.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -50,6 +50,8 @@ Modular Theming: Avoid hardcoding colors or arbitrary values in Tailwind classes
 
 Class Clutter: If a component has an excessively long list of Tailwind classes, extract them using standard Tailwind @apply directives in the CSS file, or map them to a constants object to keep the JSX readable.
 
+NEEDS TO WORK WELL ON DESKTOP AND MOBILE!!
+
 5. Review & Refactor Culture
 
 Continuous Refactoring: Refactoring is not a separate task; it is part of the daily development cycle. Clean up as you go.

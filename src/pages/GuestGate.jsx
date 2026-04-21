@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { signInAnonymously } from 'firebase/auth'
-import { auth } from '../firebase'
+import { doc, getDoc } from 'firebase/firestore'
+import { auth, db } from '../firebase'
 
 // VITE_ env vars are bundled client-side. Security against data access
 // is enforced by Firestore rules (require auth), not by this passcode alone.
@@ -11,9 +12,16 @@ export default function GuestGate() {
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [announcement, setAnnouncement] = useState('')
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from?.pathname || '/'
+
+  useEffect(() => {
+    getDoc(doc(db, 'config', 'announcement'))
+      .then(snap => { if (snap.exists()) setAnnouncement(snap.data().message ?? '') })
+      .catch(() => {/* non-critical, silently ignore */})
+  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -42,6 +50,12 @@ export default function GuestGate() {
         <p className="font-sans text-sage text-sm leading-relaxed mb-10">
           Please enter the passcode from your Save the Date to continue.
         </p>
+        {announcement && (
+          <div className="bg-sunrise-pink/20 border border-sunrise-pink/40 rounded-lg px-5 py-4 mb-8 text-left">
+            <p className="font-sans text-xs tracking-[0.2em] uppercase text-palmetto/60 mb-1">Announcement</p>
+            <p className="font-sans text-palmetto text-sm leading-relaxed">{announcement}</p>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="text"

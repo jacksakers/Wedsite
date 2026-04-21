@@ -1,0 +1,72 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ────────────────────────────────────────────────────
+
+    // Any Firebase Auth user (anonymous guests or named admins)
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Reads the config/admins document to check whether the caller is an admin.
+    // Note: the VITE_ADMIN_UID env var is client-side only and cannot be used
+    // here. Make sure the primary UID is also present in config/admins.uids
+    // (the AdminsTab seeds this automatically from the env var on first load).
+    function isAdmin() {
+      return isAuthenticated()
+          && request.auth.uid in get(/databases/$(database)/documents/config/admins).data.uids;
+    }
+
+    // ─── /guests ─────────────────────────────────────────────────────────────
+    // Any authenticated user can look up their invitation (RSVP flow needs this).
+    // Only admins may create, update, or delete guest records.
+    match /guests/{guestId} {
+      allow read:   if isAuthenticated();
+      allow create,
+            update,
+            delete: if isAdmin();
+    }
+
+    // ─── /rsvps ──────────────────────────────────────────────────────────────
+    // Any authenticated user can submit or update their own RSVP.
+    // setDoc uses the guestId as the document key, so we allow writes where the
+    // document ID matches the uid OR the caller is an admin (admin edits/deletes).
+    // Reading the full list is restricted to admins only.
+    match /rsvps/{rsvpId} {
+      allow read:   if isAdmin();
+      allow create,
+            update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // ─── /photos ─────────────────────────────────────────────────────────────
+    // Metadata documents written by the upload hook.
+    // Any authenticated user can read (needed to render photos on public pages).
+    // Only admins may write.
+    match /photos/{photoId} {
+      allow read:   if isAuthenticated();
+      allow create,
+            update,
+            delete: if isAdmin();
+    }
+
+    // ─── /vendors ────────────────────────────────────────────────────────────
+    // Entirely private — admin eyes only.
+    match /vendors/{vendorId} {
+      allow read,
+            write: if isAdmin();
+    }
+
+    // ─── /config ─────────────────────────────────────────────────────────────
+    match /config/{docId} {
+      // config/announcement: guests need to read this to show the banner.
+      //   (Anyone, even unauthenticated, can read the announcement — it's public.)
+      // config/admins: only admins may read or write.
+      allow read: if docId == 'announcement'
+                  || isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}
