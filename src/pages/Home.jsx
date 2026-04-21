@@ -64,7 +64,7 @@ export default function Home() {
             <p className="font-sans text-sunrise-pink tracking-[0.35em] uppercase text-xs mb-8">
               You are cordially invited to celebrate the wedding of
             </p>
-            <h1 className="font-serif text-paper text-6xl sm:text-4xl md:text-6xl leading-none mb-6 text-gilt">
+            <h1 className="font-serif text-paper text-4xl sm:text-5xl md:text-6xl leading-none mb-6 text-gilt">
               {COUPLE_FULL_DISPLAY}
             </h1>
             <div className="flex items-center justify-center gap-4 my-6">
