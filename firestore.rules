@@ -61,12 +61,21 @@ service cloud.firestore {
 
     // ─── /config ─────────────────────────────────────────────────────────────
     match /config/{docId} {
-      // config/announcement: guests need to read this to show the banner.
-      //   (Anyone, even unauthenticated, can read the announcement — it's public.)
-      // config/admins: only admins may read or write.
+      // config/announcement: public read so guests see the banner before auth.
+      // config/admins:
+      //   - Any authenticated user may read (AdminRoute needs this to resolve
+      //     the admin check — UIDs are opaque and non-sensitive).
+      //   - Non-anonymous authenticated users (email/password admins) may
+      //     CREATE the document once, handling the first-run bootstrap case
+      //     where no admins doc exists yet.
+      //   - Only verified admins may update or delete it.
       allow read: if docId == 'announcement'
-                  || isAdmin();
-      allow write: if isAdmin();
+                  || (docId == 'admins' && isAuthenticated());
+      allow create: if docId == 'admins'
+                    && isAuthenticated()
+                    && request.auth.token.firebase.sign_in_provider != 'anonymous';
+      allow update,
+            delete: if isAdmin();
     }
   }
 }
