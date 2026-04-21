@@ -18,8 +18,8 @@ export default function Registry() {
   return (
     <main className="bg-paper">
       {/* Page Header */}
-      <section className="bg-palmetto py-20 px-6 text-center">
-        <h1 className="font-serif text-paper text-5xl md:text-6xl mb-4">Registry</h1>
+      <section className="bg-palmetto py-20 px-6 text-center velvet-surface">
+        <h1 className="font-serif text-paper text-5xl md:text-6xl mb-4 text-gilt">Registry</h1>
         <p className="font-sans text-paper/70 text-xs tracking-[0.25em] uppercase">
           Your presence is the greatest gift
         </p>
@@ -36,9 +36,9 @@ export default function Registry() {
           {REGISTRIES.map(({ name, description, href, cta }) => (
             <div
               key={name}
-              className="bg-sage/10 rounded-lg p-8 border border-sage/20 flex flex-col"
+              className="bg-sage/10 rounded-lg p-8 border border-sage/20 flex flex-col paper-lift"
             >
-              <h2 className="font-serif text-palmetto text-2xl mb-2">{name}</h2>
+              <h2 className="font-serif text-palmetto text-2xl mb-2 text-pressed">{name}</h2>
               <p className="font-sans text-sage text-sm leading-relaxed flex-1 mb-6">
                 {description}
               </p>
@@ -55,11 +55,11 @@ export default function Registry() {
         </div>
 
         {/* Honeymoon Fund */}
-        <div className="bg-sunrise-pink/20 border border-sunrise-pink/40 rounded-lg p-8 text-center">
+        <div className="bg-sunrise-pink/20 border border-sunrise-pink/40 rounded-lg p-8 text-center paper-lift">
           <p className="font-sans text-sunrise-orange text-xs tracking-[0.25em] uppercase mb-3">
             Most Appreciated
           </p>
-          <h2 className="font-serif text-palmetto text-3xl mb-4">Honeymoon Fund</h2>
+          <h2 className="font-serif text-palmetto text-3xl mb-4 text-pressed">Honeymoon Fund</h2>
           <p className="font-sans text-sage text-sm leading-relaxed mb-6 max-w-md mx-auto">
             We're dreaming of an adventure together. A contribution to our honeymoon fund
             would mean the world to us.

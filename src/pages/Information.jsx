@@ -77,16 +77,16 @@ export default function Information() {
   return (
     <main className="bg-paper">
       {/* Page Header */}
-      <section className="bg-palmetto py-20 px-6 text-center">
-        <h1 className="font-serif text-paper text-5xl md:text-6xl mb-4">The Details</h1>
+      <section className="bg-palmetto py-20 px-6 text-center velvet-surface">
+        <h1 className="font-serif text-paper text-5xl md:text-6xl mb-4 text-gilt">The Details</h1>
         <p className="font-sans text-paper/70 text-xs tracking-[0.25em] uppercase">
           Everything you need to know
         </p>
       </section>
 
       {/* Schedule */}
-      <section className="py-20 px-6 max-w-3xl mx-auto">
-        <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-12 text-center">
+      <section className="py-20 px-6 max-w-3xl mx-auto paper-lift">
+        <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-12 text-center text-pressed">
           Day-of Schedule
         </h2>
         <ol className="space-y-0">
@@ -113,8 +113,8 @@ export default function Information() {
       <div className="border-t border-sage/20 max-w-3xl mx-auto" />
 
       {/* Travel & Lodging */}
-      <section className="py-20 px-6 max-w-3xl mx-auto">
-        <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-12 text-center">
+      <section className="py-20 px-6 max-w-3xl mx-auto paper-lift">
+        <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-12 text-center text-pressed">
           Travel & Lodging
         </h2>
         <div className="grid sm:grid-cols-2 gap-6 mb-8">
@@ -140,8 +140,8 @@ export default function Information() {
       <div className="border-t border-sage/20 max-w-3xl mx-auto" />
 
       {/* Columbia Weekend Guide */}
-      <section className="py-20 px-6 max-w-3xl mx-auto">
-        <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-4 text-center">
+      <section className="py-20 px-6 max-w-3xl mx-auto paper-lift">
+        <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-4 text-center text-pressed">
           Make a Weekend of It
         </h2>
         <p className="font-sans text-sage text-sm text-center mb-12">
@@ -166,8 +166,8 @@ export default function Information() {
       <div className="border-t border-sage/20 max-w-3xl mx-auto" />
 
       {/* FAQ */}
-      <section className="py-20 px-6 max-w-3xl mx-auto">
-        <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-10 text-center">
+      <section className="py-20 px-6 max-w-3xl mx-auto paper-lift">
+        <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-10 text-center text-pressed">
           Frequently Asked Questions
         </h2>
         <div>

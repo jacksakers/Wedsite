@@ -38,7 +38,7 @@ export default function GuestGate() {
         <p className="font-sans text-sunrise-orange text-xs tracking-[0.25em] uppercase mb-4">
           Welcome
         </p>
-        <h1 className="font-serif text-palmetto text-4xl mb-4">Guest Access</h1>
+        <h1 className="font-serif text-palmetto text-4xl mb-4 text-pressed">Guest Access</h1>
         <p className="font-sans text-sage text-sm leading-relaxed mb-10">
           Please enter the passcode from your Save the Date to continue.
         </p>

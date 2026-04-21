@@ -18,7 +18,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 bg-paper/95 backdrop-blur-sm border-b border-sage/20 shadow-sm">
+    <header className="sticky top-0 z-50 bg-paper/95 backdrop-blur-sm border-b border-sage/20 shadow-sm paper-lift">
       <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-16">
         <Link
           to="/"

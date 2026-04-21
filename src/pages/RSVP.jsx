@@ -70,14 +70,14 @@ export default function RSVP() {
 
   return (
     <main className="bg-paper min-h-[80svh]">
-      <section className="bg-palmetto py-16 px-6 text-center">
-        <h1 className="font-serif text-paper text-5xl md:text-6xl mb-4">RSVP</h1>
+      <section className="bg-palmetto py-16 px-6 text-center velvet-surface">
+        <h1 className="font-serif text-paper text-5xl md:text-6xl mb-4 text-gilt">RSVP</h1>
         <p className="font-sans text-paper/70 text-xs tracking-[0.25em] uppercase">
           Kindly reply by {RSVP_DEADLINE}
         </p>
       </section>
 
-      <section className="py-16 px-6 max-w-2xl mx-auto">
+      <section className="py-16 px-6 max-w-2xl mx-auto paper-lift">
         {step < 4 && <StepIndicator current={step} />}
 
         {step === 1 && <StepLookup onFound={handleGuestFound} />}

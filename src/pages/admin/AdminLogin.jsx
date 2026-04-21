@@ -27,7 +27,7 @@ export default function AdminLogin() {
   return (
     <main className="min-h-[80svh] flex items-center justify-center bg-paper px-6">
       <div className="w-full max-w-sm">
-        <h1 className="font-serif text-palmetto text-3xl text-center mb-2">Admin Sign In</h1>
+        <h1 className="font-serif text-palmetto text-3xl text-center mb-2 text-pressed">Admin Sign In</h1>
         <p className="font-sans text-sage text-xs text-center tracking-widest uppercase mb-8">
           Jack &amp; Kelsey Wedding
         </p>
