@@ -20,19 +20,29 @@ function Polaroid({ src, alt, rotate, tapeRotate, className = '' }) {
         />
         {/* Polaroid frame */}
         <div
-          className="bg-paper"
+          className="bg-paper relative"
           style={{
-            width: '176px',
-            padding: '10px 10px 36px 10px',
+            width: '224px',
+            padding: '12px 12px 44px 12px',
             boxShadow: '0 4px 8px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.25)',
           }}
         >
-          <img
-            src={src}
-            alt={alt}
-            className="w-full object-cover block"
-            style={{ height: '156px' }}
-          />
+          <div className="relative overflow-hidden" style={{ height: '200px' }}>
+            <img
+              src={src}
+              alt={alt}
+              className="w-full h-full object-cover block"
+              style={{ filter: 'contrast(1.08) saturate(1.12) brightness(1.03)' }}
+            />
+            {/* Glossy film sheen */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.0) 100%)',
+                mixBlendMode: 'screen',
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -51,7 +61,7 @@ export default function Home() {
         */}
         {/* <div className="absolute inset-0 bg-sage/10 pointer-events-none" /> */}
 
-        <div className="relative z-10 w-full max-w-3xl mx-auto">
+        <div className="relative w-full max-w-3xl mx-auto" style={{ zIndex: 120 }}>
 
           {/* Top polaroid row: 2 photos on md+, 1 on mobile */}
           <div className="flex justify-between items-end mb-10 px-2">
