@@ -1,0 +1,102 @@
+Implementation Plan: Wedding Website
+
+This plan breaks the development into phases, starting with a robust environment setup that solves the common Vite + Tailwind configuration issues.
+
+Phase 1: Environment Setup & Tooling
+
+Tailwind recently updated to v4, which uses a simplified Vite plugin approach rather than the older PostCSS method. Here is the modern, foolproof way to set it up.
+
+Initialize the Vite React Project:
+
+npm create vite@latest our-wedding -- --template react
+cd our-wedding
+
+
+Install Tailwind CSS and the Vite Plugin:
+
+npm install tailwindcss @tailwindcss/vite
+
+
+Configure vite.config.js:
+Modify your Vite config to include the Tailwind plugin.
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+})
+
+
+Set Up the Modular Color Theme in src/index.css:
+Delete the default CSS and add the Tailwind imports along with your custom theme variables. This makes the colors highly modular!
+
+@import "tailwindcss";
+
+@theme {
+  --color-sage: #8A9A86;
+  --color-palmetto: #3B5323;
+  --color-sunrise-pink: #F8C8DC;
+  --color-sunrise-orange: #FFB347;
+  --color-paper: #FDFBF7;
+}
+
+body {
+  background-color: var(--color-paper);
+}
+
+
+Run the Server:
+
+npm install
+npm run dev
+
+
+Phase 2: Firebase Setup & Authentication Wall
+
+Initialize Firebase: Create a Firebase project. Enable Authentication, Firestore Database, and Storage.
+
+Setup Firebase Config: Create a src/firebase.js file to initialize the app.
+
+Build the Verification Gate: Create a simple landing page that requires users to enter a passcode (e.g., provided on their Save the Date) or verify their email before accessing the ProtectedLayout component.
+
+Firebase Security Rules: Lock down Firestore so that only authenticated users can read sensitive documents (like the schedule) and write to the RSVP collection.
+
+Phase 3: Core UI & Static Pages (The Aesthetic)
+
+Layout Components: Build a responsive Navbar (hamburger menu for mobile) and Footer.
+
+Home Page: Build the hero banner with an engagement photo. Add the countdown timer component.
+
+Information Page: Build accordion components (using Tailwind) for FAQs. Add sections for travel, lodging, and the "Columbia Weekend Guide".
+
+Registry Page: Create stylized cards linking to your registries or an embedded Stripe checkout link for a Honeymoon fund.
+
+Phase 4: The RSVP Engine & Admin Portal
+
+RSVP Form: Build a multi-step React form:
+
+Step 1: Find your invitation (Lookup by name).
+
+Step 2: Accept/Decline for each member in the party.
+
+Step 3: Dietary restrictions & song requests.
+
+Firestore Integration: Save form state to a /rsvps collection in Firebase.
+
+Admin Dashboard: Create a protected route /admin (accessible only by your specific user UID). Build a table component to fetch, view, and aggregate all RSVPs.
+
+Phase 5: Future Features (Social Media & Evites)
+
+Social Feed: Create a Firestore collection called /posts. Build a UI where guests can leave text comments.
+
+Photo Uploads: Integrate Firebase Storage. Allow guests to upload photos from their phones directly to a shared gallery feed.
+
+Dynamic Evite Links: Generate query-parameter links (e.g., wedding.com/invite?code=12345). When a guest clicks, the app reads the URL, automatically verifies them, and drops them into their personalized RSVP page.
+
+Phase 6: Testing & Deployment
+
+Responsive Testing: Ensure the UI looks perfect on mobile (critical, as 90% of guests will view it on their phones).
+
+Deployment: Run npm run build. Deploy the dist folder to Firebase Hosting (firebase deploy --only hosting) or connect the repo to Vercel for continuous integration.

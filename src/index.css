@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sage: #8A9A86;
+  --color-palmetto: #3B5323;
+  --color-sunrise-pink: #F8C8DC;
+  --color-sunrise-orange: #FFB347;
+  --color-paper: #FDFBF7;
+}
+
+body {
+  background-color: var(--color-paper);
+}

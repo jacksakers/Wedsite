@@ -1,0 +1,83 @@
+Wedding Website Design Document
+
+1. Project Overview
+
+A fully custom, highly interactive wedding website to serve as the digital hub for the upcoming wedding on March 13, 2027. The platform will handle RSVPs, provide venue/travel information, link registries, and act as a secure, verified portal for 70 expected guests.
+
+2. Event Details
+
+Date: March 13, 2027
+
+Time: 3:00 PM
+
+Venue: The River Road and Jasmine Houses and Gardens
+
+Location: Irmo, SC
+
+Vibe: Intimate, Southern Botanical, Turn-of-the-Century Charm, Romantic Gardens.
+
+3. Aesthetic & UI/UX Design
+
+The visual language will draw heavily from the venue's natural beauty and a "Coastal Carolina Sunrise" theme.
+
+Color Palette (Modular & Themed):
+
+Primary: Sage Green (soft, natural)
+
+Secondary: Palmetto Green (deep, rich foliage)
+
+Accents: Splash of Sunrise Pink (soft pastel) and a hint of Sunrise Orange (warm, inviting glow).
+
+Neutrals: Warm off-whites (creams, linen colors) to give it an elegant, physical-card feel rather than harsh, digital white.
+
+Typography:
+
+Headings: A classic, elegant Serif font (e.g., Playfair Display or Cormorant Garamond) to reflect the vintage venue.
+
+Body: A clean, highly readable Sans-Serif font (e.g., Lato or Montserrat).
+
+Imagery: Subtle background motifs of Magnolia leaves, Palmetto trees, and botanical sketches. Engagement photos will be featured prominently with soft, rounded corners and drop shadows.
+
+4. Core Features (MVP)
+
+Landing Page: Beautiful hero image (engagement photo), countdown timer to March 13, and the general date/location.
+
+Our Story: A timeline or short narrative of the relationship, complete with a photo gallery.
+
+Guest Verification / Security Wall: A gateway where guests enter their name/email (or a secret code sent via Evite) to gain access to sensitive information.
+
+Information Hub (Protected):
+
+Schedule: Exact timelines for the ceremony and reception.
+
+Travel & Lodging: Hotel blocks, Airbnb recommendations, and parking info.
+
+Columbia/Irmo Guide: "Make a weekend of it" – favorite restaurants, sights, and things to do.
+
+FAQs: Dress code, plus-ones, dietary restrictions.
+
+RSVP System (Protected): Digital form connected to Firestore. Guests can confirm attendance, select meals (if applicable), and list dietary restrictions.
+
+Registry/Payment: Links to external registries (Zola, Target, etc.) or integration with a payment processor (Stripe) for a "Honeymoon Fund".
+
+Admin Portal (Hidden): Dashboard for the couple to view RSVP lists, edit FAQs, approve users, and manage content.
+
+5. Future / Stretch Features (Post-MVP)
+
+Digital Evite Integration: Generate unique, secure links to send out via email/text. Clicking the link auto-verifies the guest.
+
+Interactive Social Wall: A feed where verified guests can post comments, well-wishes, and upload photos before, during, and after the wedding.
+
+Live Photo Gallery: Integration with Firebase Storage where guests can upload their candid shots from the reception.
+
+6. Technical Architecture
+
+Frontend: React.js (Component-based UI)
+
+Build Tool: Vite.js (Fast HMR, optimized builds)
+
+Styling: Tailwind CSS (Utility-first, responsive, highly modular theme config)
+
+Backend / Database: Firebase (Authentication, Firestore for RSVPs/Posts, Storage for Photos)
+
+Hosting: Firebase Hosting or Vercel

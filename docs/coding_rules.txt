@@ -1,0 +1,57 @@
+Coding Rules & Best Practices
+
+This document outlines the architectural guidelines and coding standards for the Wedding Website project. Adhering to these rules ensures the codebase remains maintainable, readable, and scalable.
+
+1. Core Principles
+
+DRY (Don't Repeat Yourself): * Never write the same logic twice. If you find yourself copying and pasting code, abstract it into a reusable utility function, custom React hook, or shared UI component.
+
+SOLID Principles:
+
+While originally for OOP, these apply to our React architecture:
+
+Single Responsibility Principle (SRP): Every component, hook, or utility function should do exactly one thing. If a component is fetching data, formatting that data, and rendering complex UI, it needs to be broken apart.
+
+Open/Closed Principle: Components should be open for extension (e.g., via props or children) but closed for modification.
+
+2. File Size & Structure Boundaries
+
+The 500-Line Limit: No single file should exceed 500 lines of code. If a file approaches this limit, it is a strict indicator that it handles too many responsibilities and must be refactored into smaller sub-components or helper files.
+
+One Purpose Per File: Each file must have a single, clearly defined purpose.
+
+Example: Do not mix API/Firebase logic with UI rendering in the same file. Separate them into useRSVP.js (logic) and RSVPForm.jsx (UI).
+
+Naming Conventions:
+
+React Components: PascalCase.jsx (e.g., GuestList.jsx)
+
+Utility Functions / Hooks: camelCase.js (e.g., useAuth.js, formatDate.js)
+
+Constants / Configs: UPPER_SNAKE_CASE exported from relevant files.
+
+3. Component & Functional Design
+
+Keep It Small and Functional: * Prefer pure, functional components.
+
+A component should ideally fit within a single screen (monitor height) so it can be comprehended at a glance.
+
+Modularity First:
+
+Build UI elements (Buttons, Inputs, Modals, Cards) as modular, reusable "dumb" components that accept props.
+
+"Smart" components (pages or complex containers) should only be responsible for managing state and passing it down to the "dumb" components.
+
+Custom Hooks: Move complex useEffect side-effects and heavy useState logic out of components and into custom hooks to keep the component body clean and focused strictly on rendering.
+
+4. Styling & Tailwind CSS
+
+Modular Theming: Avoid hardcoding colors or arbitrary values in Tailwind classes (e.g., avoid text-[#8A9A86]). Always use the modular variables defined in our theme config (e.g., text-sage).
+
+Class Clutter: If a component has an excessively long list of Tailwind classes, extract them using standard Tailwind @apply directives in the CSS file, or map them to a constants object to keep the JSX readable.
+
+5. Review & Refactor Culture
+
+Continuous Refactoring: Refactoring is not a separate task; it is part of the daily development cycle. Clean up as you go.
+
+Leave It Better Than You Found It: If you touch an older file to add a feature and notice it violates these rules (e.g., creeping up to 400+ lines), take the time to break it apart.
