@@ -1,35 +1,84 @@
 import CountdownTimer from '../components/CountdownTimer'
 import { COUPLE_DISPLAY, COUPLE_FULL_DISPLAY, VENUE_NAME, VENUE_CITY, WEDDING_TIME_DISPLAY } from '../constants/weddingInfo'
+import dockPhoto from '../assets/dock_photo.jpg'
+import dressedUp from '../assets/dressed_up.jpg'
+import lyonRun from '../assets/lyon_run.jpg'
+import laLeona from '../assets/la_leona.jpg'
 
 export default function Home() {
   return (
     <main>
       {/* Hero */}
-      <section className="relative min-h-[90svh] flex flex-col items-center justify-center bg-palmetto text-center px-6 py-24 overflow-hidden velvet-surface">
+      <section className="relative flex flex-col items-center justify-center 
+                            bg-palmetto text-center px-6 py-24 overflow-hidden velvet-surface">
         {/*
           Replace the div below with an <img> of your engagement photo once available.
           e.g. <img src="/engagement.jpg" className="absolute inset-0 w-full h-full object-cover opacity-30" alt="" />
         */}
-        <div className="absolute inset-0 bg-sage/10 pointer-events-none" />
+        {/* <div className="absolute inset-0 bg-sage/10 pointer-events-none" /> */}
 
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <p className="font-sans text-sunrise-pink tracking-[0.35em] uppercase text-xs mb-8">
-            You are cordially invited to celebrate the wedding of
-          </p>
-          <h1 className="font-serif text-paper text-6xl sm:text-4xl md:text-6xl leading-none mb-6 text-gilt">
-            {COUPLE_FULL_DISPLAY}
-          </h1>
-          <div className="flex items-center justify-center gap-4 my-6">
-            <span className="block h-px w-16 bg-sunrise-pink/50" />
-            <span className="font-sans text-paper/70 tracking-[0.25em] uppercase text-xs">
-              {WEDDING_TIME_DISPLAY}
-            </span>
-            <span className="block h-px w-16 bg-sunrise-pink/50" />
+        <div className="relative z-10 w-full max-w-3xl mx-auto">
+          {/* Wedding text */}
+          <div className="text-center">
+            <p className="font-sans text-sunrise-pink tracking-[0.35em] uppercase text-xs mb-8">
+              You are cordially invited to celebrate the wedding of
+            </p>
+            <h1 className="font-serif text-paper text-6xl sm:text-4xl md:text-6xl leading-none mb-6 text-gilt">
+              {COUPLE_FULL_DISPLAY}
+            </h1>
+            <div className="flex items-center justify-center gap-4 my-6">
+              <span className="block h-px w-16 bg-sunrise-pink/50" />
+              <span className="font-sans text-paper/70 tracking-[0.25em] uppercase text-xs">
+                {WEDDING_TIME_DISPLAY}
+              </span>
+              <span className="block h-px w-16 bg-sunrise-pink/50" />
+            </div>
+            <p className="font-serif text-paper/80 text-xl italic mb-2">{VENUE_NAME}</p>
+            <p className="font-sans text-paper/60 tracking-[0.2em] uppercase text-xs">
+              March 13, 2027 · {VENUE_CITY}
+            </p>
           </div>
-          <p className="font-serif text-paper/80 text-xl italic mb-2">{VENUE_NAME}</p>
-          <p className="font-sans text-paper/60 tracking-[0.2em] uppercase text-xs">
-            March 13, 2027 · {VENUE_CITY}
-          </p>
+
+          {/* Polaroid strip */}
+          <div className="flex flex-wrap justify-center gap-8 mt-10">
+            {[
+              { src: dockPhoto,  alt: 'At the dock',       rotate: '6deg',  tapeRotate: '-4deg', tapeLeft: '50%' },
+              { src: dressedUp,  alt: 'Dressed up',        rotate: '-5deg', tapeRotate: '3deg',  tapeLeft: '45%' },
+              { src: lyonRun,    alt: 'Lyon run',          rotate: '4deg',  tapeRotate: '-2deg', tapeLeft: '52%' },
+              { src: laLeona,    alt: 'La Leona',          rotate: '-7deg', tapeRotate: '5deg',  tapeLeft: '48%' },
+            ].map(({ src, alt, rotate, tapeRotate, tapeLeft }) => (
+              <div key={alt} style={{ transform: `rotate(${rotate})` }}>
+                <div className="relative">
+                  {/* Tape */}
+                  <div
+                    className="absolute -top-4 w-16 h-6 rounded-sm z-10"
+                    style={{
+                      left: tapeLeft,
+                      background: 'rgba(253, 230, 185, 0.55)',
+                      transform: `translateX(-50%) rotate(${tapeRotate})`,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                    }}
+                  />
+                  {/* Polaroid frame */}
+                  <div
+                    className="bg-paper"
+                    style={{
+                      width: '176px',
+                      padding: '10px 10px 36px 10px',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.25)',
+                    }}
+                  >
+                    <img
+                      src={src}
+                      alt={alt}
+                      className="w-full object-cover block"
+                      style={{ height: '156px' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
