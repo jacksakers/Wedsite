@@ -1,0 +1,83 @@
+Wedsite Interactive Features Architecture
+
+1. Frictionless Guest Identity (The Auth Solution)
+
+The Problem: We want robust social features (likes, comments, profiles) without forcing users to create traditional accounts (email/password), which drastically lowers engagement.
+The Solution: "Claim Your RSVP" Flow
+
+The Magic Entry: Guest arrives via a Magic Evite Link (e.g., wedsite.com/?code=smithparty) or types in the universal access code.
+
+Anonymous Auth: Behind the scenes, Firebase instantly creates an Anonymous User (signInAnonymously()).
+
+Identity Linking: The user is prompted: "Who are you?" with a searchable dropdown of the guest list.
+
+The Handshake: When they select "John Doe", the app updates the Firestore guests document to include their Anonymous uid. From now on, whenever that uid interacts with the site, the app knows it is "John Doe".
+
+Persistence: Firebase Auth persists the anonymous session in IndexedDB automatically. As long as they don't clear their browser data, they remain logged in as "John Doe" across visits.
+
+2. The Social Feed (The "Lounge")
+
+A private, tactile scrolling feed where guests can interact, built to resemble a physical scrapbook or corkboard.
+
+Public Posts: Guests can post text or photos. These appear in the main feed.
+
+Private Notes ("To the Couple"): A toggle on the post composer: "Keep this between us." If checked, the post gets an isPrivate: true flag in Firestore and only renders for Admin UIDs.
+
+Rich Interactions:
+
+Comments: Nested sub-collection under each post document.
+
+Reactions: Instead of just a "Like" button, use a custom physical interaction (e.g., stamping a wax seal on the post or pressing a heart into the paper). Array of UIDs in Firestore (likes: ["uid1", "uid2"]).
+
+Notifications Engine: A notifications Firestore collection. When User A comments on User B's post, a document is created. A bell icon in the navbar listens to this collection where recipientId == currentUser.uid.
+
+3. The Digital Disposable Camera (Photo Vault)
+
+Separate from the Social Feed, this is an archival tool specifically for the wedding day.
+
+The Vibe: Styled like a physical disposable camera or vintage photo album.
+
+Functionality: Guests can bulk-upload photos here without writing captions.
+
+Admin Display: These photos are saved to a specific Firebase Storage bucket. You can pull this feed to display a live, auto-updating slideshow on a projector during the reception!
+
+The Exit Ramp: Include an elegant card at the top: "Want the full quality downloads? View our Shared Google Photos Album [Here]."
+
+4. Magic Evite Links (Dynamic Routing)
+
+The URL Structure: https://your-wedsite.com/welcome?guestId=abc123XYZ
+
+The Logic: 1. A React useEffect in the routing layer checks for the guestId query parameter on load.
+2. If present, it triggers the Firebase Anonymous Auth.
+3. It fetches the guest document matching abc123XYZ and automatically completes the "Identity Linking" step from Section 1.
+4. The user is instantly dropped into their personalized RSVP page with zero clicks. "Welcome back, John!"
+
+5. New Feature 1: The "Who's Who" Polaroid Wall
+
+The Concept: Weddings mash together friend groups and families who don't know each other. The Polaroid Wall is an icebreaker.
+
+How it Works: Once a guest claims their identity, they are prompted to upload a selfie and write one fun fact (e.g., "How I know the couple").
+
+The UI: A masonry grid of digital Polaroids scattered on the "velvet" background. Guests can click a Polaroid, flip it over, and read about the person before the wedding day, making mingling at the Jasmine House much easier.
+
+6. New Feature 2: The Crowdsourced Mixtape
+
+The Concept: A highly visual, interactive way to handle reception song requests.
+
+How it Works: Instead of a boring text input on the RSVP form, create a dedicated "Jukebox" tab.
+
+The UI: Styled like a vintage record player or mixtape. Guests can search for a song (optional: hit the Spotify API to pull album art, or just let them type it) and "add it to the stack."
+
+Social Element: Other guests can see the requested songs and "upvote" them. This gives the DJ a guaranteed list of floor-fillers that the crowd actually wants to hear.
+
+7. Database Structure Adjustments (Firestore)
+
+guests (Collection): Add linkedUid, polaroidUrl, funFact.
+
+posts (Collection): authorId, authorName, content, imageUrl, timestamp, isPrivate, likes[].
+
+comments (Sub-collection under posts).
+
+notifications (Collection): recipientId, triggerUserId, type (like/comment), postId, read (boolean).
+
+mixtape (Collection): songTitle, artist, requestedBy, upvotes[].

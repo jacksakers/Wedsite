@@ -5,6 +5,8 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  query,
+  where,
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -35,4 +37,22 @@ export async function updateGuest(id, data) {
 
 export async function deleteGuest(id) {
   await deleteDoc(doc(db, 'guests', id))
+}
+
+/**
+ * Links an anonymous UID to a guest document.
+ * The Firestore rule only permits this when linkedUid is not already set.
+ */
+export async function linkGuestUid(guestId, uid) {
+  await updateDoc(doc(db, 'guests', guestId), { linkedUid: uid })
+}
+
+/**
+ * Returns the guest document linked to a given Firebase Auth UID, or null.
+ */
+export async function getGuestByUid(uid) {
+  const snap = await getDocs(query(collection(db, 'guests'), where('linkedUid', '==', uid)))
+  if (snap.empty) return null
+  const d = snap.docs[0]
+  return { id: d.id, ...d.data() }
 }

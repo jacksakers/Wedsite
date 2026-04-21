@@ -21,12 +21,19 @@ service cloud.firestore {
 
     // ─── /guests ─────────────────────────────────────────────────────────────
     // Any authenticated user can look up their invitation (RSVP flow needs this).
-    // Only admins may create, update, or delete guest records.
+    // Only admins may create or delete guest records.
+    // Identity claim: an authenticated user may set `linkedUid` on a guest doc
+    // that is not yet claimed, provided they are only touching that one field
+    // and setting it to their own UID. This prevents hijacking and data tampering.
     match /guests/{guestId} {
       allow read:   if isAuthenticated();
       allow create,
-            update,
             delete: if isAdmin();
+      allow update: if isAdmin()
+                    || (isAuthenticated()
+                        && request.resource.data.linkedUid == request.auth.uid
+                        && (!('linkedUid' in resource.data) || resource.data.linkedUid == null)
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['linkedUid']));
     }
 
     // ─── /rsvps ──────────────────────────────────────────────────────────────
@@ -69,11 +76,15 @@ service cloud.firestore {
       //     CREATE the document once, handling the first-run bootstrap case
       //     where no admins doc exists yet.
       //   - Only verified admins may update or delete it.
+      // config/coupleProfiles: maps admin UIDs to { name, role }.
+      //   Only admins may read or write this document.
       allow read: if docId == 'announcement'
-                  || (docId == 'admins' && isAuthenticated());
-      allow create: if docId == 'admins'
-                    && isAuthenticated()
-                    && request.auth.token.firebase.sign_in_provider != 'anonymous';
+                  || (docId == 'admins' && isAuthenticated())
+                  || (docId == 'coupleProfiles' && isAdmin());
+      allow create: if (docId == 'admins'
+                        && isAuthenticated()
+                        && request.auth.token.firebase.sign_in_provider != 'anonymous')
+                    || (docId == 'coupleProfiles' && isAdmin());
       allow update,
             delete: if isAdmin();
     }

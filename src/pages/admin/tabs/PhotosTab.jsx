@@ -211,8 +211,7 @@ export default function PhotosTab() {
     <div>
       <h2 className="font-serif text-palmetto text-2xl mb-2 text-pressed">Photo Repository</h2>
       <p className="font-sans text-sage text-xs mb-6">
-        Upload and organize couple photos by category. Pull specific photos by category in pages
-        like Our Story, or use <code className="font-mono bg-sage/10 px-1 rounded">getRandomPhoto('engagement')</code> for rotating hero shots.
+        Upload and organize couple photos by category. 
       </p>
 
       {/* Upload panel */}

@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { label: 'Details', to: '/information' },
   { label: 'Registry', to: '/registry' },
   { label: 'RSVP', to: '/rsvp' },
+  { label: 'Lounge', to: '/lounge' },
 ]
 
 const navLinkClass = ({ isActive }) =>
