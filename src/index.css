@@ -6,8 +6,12 @@
   --color-sunrise-pink: #F8C8DC;
   --color-sunrise-orange: #FFB347;
   --color-paper: #FDFBF7;
+
+  --font-sans: 'Lato', system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
 }
 
 body {
   background-color: var(--color-paper);
+  font-family: var(--font-sans);
 }
