@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../firebase'
+import { COUPLE_DISPLAY } from '../../constants/weddingInfo'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
@@ -29,7 +30,7 @@ export default function AdminLogin() {
       <div className="w-full max-w-sm">
         <h1 className="font-serif text-palmetto text-3xl text-center mb-2 text-pressed">Admin Sign In</h1>
         <p className="font-sans text-sage text-xs text-center tracking-widest uppercase mb-8">
-          Jack &amp; Kelsey Wedding
+          {COUPLE_DISPLAY}'s Wedding
         </p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
