@@ -1,5 +1,5 @@
 import CountdownTimer from '../components/CountdownTimer'
-import { COUPLE_DISPLAY, VENUE_NAME, VENUE_CITY, WEDDING_TIME_DISPLAY } from '../constants/weddingInfo'
+import { COUPLE_DISPLAY, COUPLE_FULL_DISPLAY, VENUE_NAME, VENUE_CITY, WEDDING_TIME_DISPLAY } from '../constants/weddingInfo'
 
 export default function Home() {
   return (
@@ -16,8 +16,8 @@ export default function Home() {
           <p className="font-sans text-sunrise-pink tracking-[0.35em] uppercase text-xs mb-8">
             You are cordially invited to celebrate the wedding of
           </p>
-          <h1 className="font-serif text-paper text-6xl sm:text-7xl md:text-8xl leading-none mb-6">
-            {COUPLE_DISPLAY}
+          <h1 className="font-serif text-paper text-6xl sm:text-4xl md:text-6xl leading-none mb-6">
+            {COUPLE_FULL_DISPLAY}
           </h1>
           <div className="flex items-center justify-center gap-4 my-6">
             <span className="block h-px w-16 bg-sunrise-pink/50" />

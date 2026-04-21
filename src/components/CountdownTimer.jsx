@@ -15,11 +15,11 @@ function getTimeRemaining() {
 
 function TimeUnit({ value, label }) {
   return (
-    <div className="flex flex-col items-center gap-3 min-w-[70px]">
-      <span className="font-serif text-5xl md:text-7xl text-palmetto tabular-nums leading-none">
+    <div className="flex flex-col items-center gap-2 min-w-0">
+      <span className="font-serif text-4xl sm:text-5xl md:text-7xl text-palmetto tabular-nums leading-none">
         {String(value).padStart(2, '0')}
       </span>
-      <span className="font-sans text-xs tracking-[0.25em] uppercase text-sage">
+      <span className="font-sans text-[10px] sm:text-xs tracking-[0.25em] uppercase text-sage">
         {label}
       </span>
     </div>
@@ -41,13 +41,13 @@ export default function CountdownTimer() {
   }
 
   return (
-    <div className="flex items-start justify-center gap-6 md:gap-12">
+    <div className="flex items-start justify-center gap-4 sm:gap-6 md:gap-12 w-full">
       <TimeUnit value={time.days} label="Days" />
-      <span className="font-serif text-4xl text-sage/30 leading-none mt-2">·</span>
+      <span className="hidden sm:block font-serif text-4xl text-sage/30 leading-none mt-2">·</span>
       <TimeUnit value={time.hours} label="Hours" />
-      <span className="font-serif text-4xl text-sage/30 leading-none mt-2">·</span>
+      <span className="hidden sm:block font-serif text-4xl text-sage/30 leading-none mt-2">·</span>
       <TimeUnit value={time.minutes} label="Minutes" />
-      <span className="font-serif text-4xl text-sage/30 leading-none mt-2">·</span>
+      <span className="hidden sm:block font-serif text-4xl text-sage/30 leading-none mt-2">·</span>
       <TimeUnit value={time.seconds} label="Seconds" />
     </div>
   )
