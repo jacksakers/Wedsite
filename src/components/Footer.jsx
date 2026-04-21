@@ -3,7 +3,7 @@ import { COUPLE_DISPLAY } from '../constants/weddingInfo'
 
 export default function Footer() {
   return (
-    <footer className="bg-palmetto text-paper/70 py-12 px-6 mt-auto">
+    <footer className="bg-palmetto text-paper/70 py-12 px-6 mt-auto velvet-surface paper-edge-top">
       <div className="max-w-5xl mx-auto flex flex-col items-center gap-4 text-center">
         <p className="font-serif text-paper text-2xl tracking-wide">{COUPLE_DISPLAY}</p>
         <p className="font-sans text-xs tracking-[0.2em] uppercase text-paper/50">

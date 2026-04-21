@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main>
       {/* Hero */}
-      <section className="relative min-h-[90svh] flex flex-col items-center justify-center bg-palmetto text-center px-6 py-24 overflow-hidden">
+      <section className="relative min-h-[90svh] flex flex-col items-center justify-center bg-palmetto text-center px-6 py-24 overflow-hidden velvet-surface">
         {/*
           Replace the div below with an <img> of your engagement photo once available.
           e.g. <img src="/engagement.jpg" className="absolute inset-0 w-full h-full object-cover opacity-30" alt="" />
@@ -16,7 +16,7 @@ export default function Home() {
           <p className="font-sans text-sunrise-pink tracking-[0.35em] uppercase text-xs mb-8">
             You are cordially invited to celebrate the wedding of
           </p>
-          <h1 className="font-serif text-paper text-6xl sm:text-4xl md:text-6xl leading-none mb-6">
+          <h1 className="font-serif text-paper text-6xl sm:text-4xl md:text-6xl leading-none mb-6 text-gilt">
             {COUPLE_FULL_DISPLAY}
           </h1>
           <div className="flex items-center justify-center gap-4 my-6">
@@ -34,9 +34,9 @@ export default function Home() {
       </section>
 
       {/* Countdown */}
-      <section className="bg-paper py-20 px-6">
+      <section className="bg-paper py-20 px-6 paper-lift">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-2">
+          <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-2 text-pressed">
             Counting Down
           </h2>
           <p className="font-sans text-sage text-xs tracking-[0.25em] uppercase mb-12">
@@ -47,9 +47,9 @@ export default function Home() {
       </section>
 
       {/* Welcome note */}
-      <section className="bg-sage/10 py-20 px-6">
+      <section className="bg-sage/10 py-20 px-6 paper-lift">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-6">
+          <h2 className="font-serif text-palmetto text-3xl md:text-4xl mb-6 text-pressed">
             Welcome, Dear Guests
           </h2>
           <p className="font-sans text-sage leading-relaxed">

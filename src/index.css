@@ -15,3 +15,78 @@ body {
   background-color: var(--color-paper);
   font-family: var(--font-sans);
 }
+
+/* === Tactile Texture System === */
+
+/*
+ * Paper Grain: A fine fractal noise fixed over the entire page.
+ * Simulates the subtle tooth of pressed cotton stationery.
+ * pointer-events: none ensures it never blocks clicks.
+ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(%23p)'/></svg>");
+  background-size: 200px 200px;
+  opacity: 0.3;
+}
+
+/*
+ * Velvet Grain: A coarser, directional noise (different X/Y frequency)
+ * that mimics woven fabric fibers. Applied to dark palmetto surfaces via
+ * background-blend-mode so it blends into the background color rather
+ * than sitting on top of text content.
+ */
+/* .velvet-surface {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='v'><feTurbulence type='turbulence' baseFrequency='0.35 0.1' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='300' height='300' filter='url(%23v)' opacity='0.4'/></svg>");
+  background-size: 300px 300px;
+  background-blend-mode: overlay;
+} */
+
+/* === Depth & Shadow System === */
+
+/*
+ * Pressed Ink: Serif headings on paper.
+ * A hairline dark shadow below + bright highlight above makes text look
+ * letterpress-printed — ink pushed into the paper fibers.
+ */
+.text-pressed {
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7),
+    0 -1px 1px rgba(0, 0, 0, 0.10);
+}
+
+/*
+ * Gilt: Headings on dark velvet surfaces.
+ * A soft dark shadow below + faint bright line above reads as gold-foil shimmer.
+ */
+.text-gilt {
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.55),
+    0 -1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/*
+ * Paper Lift: Multi-layered ambient shadow.
+ * Three layers at different radii give the impression of a sheet of card
+ * hovering a few millimetres above the surface beneath it.
+ */
+.paper-lift {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.07),
+    0 10px 28px rgba(0, 0, 0, 0.04);
+}
+
+/*
+ * Paper Edge Top: Applied to elements that sit above another layer (e.g. the
+ * footer pressing down on the page). Casts a soft inward shadow upward.
+ */
+.paper-edge-top {
+  box-shadow:
+    0 -2px 4px rgba(0, 0, 0, 0.04),
+    0 -6px 20px rgba(0, 0, 0, 0.07);
+}
