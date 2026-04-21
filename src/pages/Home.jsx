@@ -5,6 +5,40 @@ import dressedUp from '../assets/dressed_up.jpg'
 import lyonRun from '../assets/lyon_run.jpg'
 import laLeona from '../assets/la_leona.jpg'
 
+function Polaroid({ src, alt, rotate, tapeRotate, className = '' }) {
+  return (
+    <div className={className} style={{ transform: `rotate(${rotate})` }}>
+      <div className="relative">
+        {/* Tape */}
+        <div
+          className="absolute -top-4 left-1/2 w-16 h-6 rounded-sm z-10"
+          style={{
+            background: 'rgba(253, 230, 185, 0.55)',
+            transform: `translateX(-50%) rotate(${tapeRotate})`,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+          }}
+        />
+        {/* Polaroid frame */}
+        <div
+          className="bg-paper"
+          style={{
+            width: '176px',
+            padding: '10px 10px 36px 10px',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.25)',
+          }}
+        >
+          <img
+            src={src}
+            alt={alt}
+            className="w-full object-cover block"
+            style={{ height: '156px' }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   return (
     <main>
@@ -18,6 +52,13 @@ export default function Home() {
         {/* <div className="absolute inset-0 bg-sage/10 pointer-events-none" /> */}
 
         <div className="relative z-10 w-full max-w-3xl mx-auto">
+
+          {/* Top polaroid row: 2 photos on md+, 1 on mobile */}
+          <div className="flex justify-between items-end mb-10 px-2">
+            <Polaroid src={dockPhoto}  alt="At the dock"  rotate="6deg"  tapeRotate="-4deg" />
+            <Polaroid src={dressedUp}  alt="Dressed up"   rotate="-5deg" tapeRotate="3deg"  className="hidden sm:block" />
+          </div>
+
           {/* Wedding text */}
           <div className="text-center">
             <p className="font-sans text-sunrise-pink tracking-[0.35em] uppercase text-xs mb-8">
@@ -39,46 +80,12 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Polaroid strip */}
-          <div className="flex flex-wrap justify-center gap-8 mt-10">
-            {[
-              { src: dockPhoto,  alt: 'At the dock',       rotate: '6deg',  tapeRotate: '-4deg', tapeLeft: '50%' },
-              { src: dressedUp,  alt: 'Dressed up',        rotate: '-5deg', tapeRotate: '3deg',  tapeLeft: '45%' },
-              { src: lyonRun,    alt: 'Lyon run',          rotate: '4deg',  tapeRotate: '-2deg', tapeLeft: '52%' },
-              { src: laLeona,    alt: 'La Leona',          rotate: '-7deg', tapeRotate: '5deg',  tapeLeft: '48%' },
-            ].map(({ src, alt, rotate, tapeRotate, tapeLeft }) => (
-              <div key={alt} style={{ transform: `rotate(${rotate})` }}>
-                <div className="relative">
-                  {/* Tape */}
-                  <div
-                    className="absolute -top-4 w-16 h-6 rounded-sm z-10"
-                    style={{
-                      left: tapeLeft,
-                      background: 'rgba(253, 230, 185, 0.55)',
-                      transform: `translateX(-50%) rotate(${tapeRotate})`,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-                    }}
-                  />
-                  {/* Polaroid frame */}
-                  <div
-                    className="bg-paper"
-                    style={{
-                      width: '176px',
-                      padding: '10px 10px 36px 10px',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.25)',
-                    }}
-                  >
-                    <img
-                      src={src}
-                      alt={alt}
-                      className="w-full object-cover block"
-                      style={{ height: '156px' }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* Bottom polaroid row: 2 photos on md+, 1 on mobile */}
+          <div className="flex justify-between items-start mt-10 px-2">
+            <Polaroid src={lyonRun}  alt="Lyon run"  rotate="-4deg" tapeRotate="2deg"  className="ml-auto sm:ml-0" />
+            <Polaroid src={laLeona} alt="La Leona"  rotate="7deg"  tapeRotate="-5deg" className="hidden sm:block" />
           </div>
+
         </div>
       </section>
 
