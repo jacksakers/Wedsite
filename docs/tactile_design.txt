@@ -1,0 +1,68 @@
+Wedsite Tactile Design Architecture
+
+1. Concept Overview: "Digital Tactility"
+
+The goal for Wedsite is to move away from flat, modern web design and embrace a physical, scrapbook-like aesthetic. The UI should evoke the feeling of holding high-quality stationery.
+
+The Whites: Heavy, pressed cotton paper (matte, subtle grain, off-white).
+
+The Greens: Crushed velvet (deep depth, directional sheen, reacts to light).
+
+2. Why Not Image Textures?
+
+Standard .jpg or .png textures tile poorly, increase load times, and remain static. Instead, Wedsite will use Procedural SVG Filters combined with CSS mix-blend-mode. This approach is resolution-independent (looks crisp on Retina displays) and extremely lightweight.
+
+3. The Paper Implementation
+
+The paper texture will act as the global background. It requires a subtle, high-frequency noise and a slight vignette to simulate ambient room lighting.
+
+Technical Approach:
+
+SVG Noise Filter: Inject an invisible inline <svg> at the root of the app using <feTurbulence> to generate fractal noise.
+
+CSS Application: Apply the noise as a background using a data URI, blending it with our --color-paper variable using mix-blend-mode: multiply or color-burn.
+
+Lighting: Add a CSS radial-gradient overlay to make the center slightly brighter than the edges, mimicking how a desk lamp hits a physical invitation.
+
+4. The Velvet Implementation (The "Wow" Factor)
+
+Velvet is characterized by its nap (the raised fibers). When light hits velvet, the color shifts drastically depending on the angle. To make it look real, it needs to react to the user.
+
+Technical Approach:
+We will create a reusable <VelvetSurface> React component.
+
+The Base: A deep Sage/Palmetto green background.
+
+The Grain: A slightly scaled-up SVG noise filter to simulate the fabric fibers, set to a low opacity and mix-blend-mode: overlay.
+
+The Sheen (Dynamic Lighting): * Use React's onMouseMove event to track the cursor's position over the component.
+
+Map the (x, y) coordinates to a CSS variable (e.g., --mouse-x, --mouse-y).
+
+Use these variables to move a radial-gradient (a soft, bright green/white highlight) across the surface.
+
+Result: As the user moves their mouse over the green elements, a soft "sheen" follows it, creating the illusion of deep, physical velvet.
+
+5. Physical Interactions & Shadows
+
+To sell the physicality, standard web drop-shadows won't work.
+
+Paper Shadows: Elements resting on the paper should use multi-layered, soft CSS shadows to mimic real physical distance (e.g., box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.05)).
+
+Tactile Clicks: Use Framer Motion (or simple CSS transform: scale(0.98)) on buttons. When a user clicks a velvet button, it should physically depress into the paper.
+
+Borders: Give paper elements a subtle 1px solid rgba(0,0,0,0.05) border to act as the "edge" of the cut paper catching the light.
+
+6. Recommended Package
+
+While we will code the actual textures using CSS/SVG, we should introduce:
+
+framer-motion: For the physics-based spring animations. It will make elements snap into place with a physical "weight" rather than linear web animations.
+
+7. Implementation Roadmap
+
+Global Paper Wrapper: Create an index.css utility class for the paper grain and apply it to the main <App /> container.
+
+Velvet Component: Create VelvetCard.jsx. Add the mouse-tracking logic for the dynamic sheen.
+
+Typography Alignment: Ensure the Serif fonts use a slightly softer black (e.g., #2A2A2A instead of #000000) so they look like ink pressed into the paper, not digital pixels floating above it.
