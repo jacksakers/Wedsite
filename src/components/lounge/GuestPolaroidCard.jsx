@@ -44,6 +44,8 @@ export default function GuestPolaroidCard({ profile, isOwn = false, onEdit }) {
         transform: `rotate(${rotate}deg) translateY(${yOffset}px)`,
         width: `${CARD_WIDTH}px`,
         perspective: '900px',
+        position: 'relative',
+        zIndex: 101,
       }}
     >
       {/* Flip container */}
@@ -140,14 +142,14 @@ export default function GuestPolaroidCard({ profile, isOwn = false, onEdit }) {
               <p className="font-serif text-palmetto text-lg leading-tight text-pressed">
                 {firstName}
               </p>
-              {isOwn && (
+              {/* {isOwn && (
                 <button
                   onClick={e => { e.stopPropagation(); onEdit?.() }}
                   className="font-sans text-sage/50 text-[10px] tracking-widest uppercase hover:text-palmetto transition-colors"
                 >
                   edit
                 </button>
-              )}
+              )} */}
             </div>
           </div>
         </div>

@@ -20,7 +20,7 @@ export default function CouplePolaroidCard({ profile, isOwn = false, onEdit }) {
   return (
     <div
       className="inline-block select-none"
-      style={{ transform: `rotate(${rotate})`, width: `${CARD_WIDTH}px`, perspective: '900px' }}
+      style={{ transform: `rotate(${rotate})`, width: `${CARD_WIDTH}px`, perspective: '900px', position: 'relative', zIndex: 101 }}
     >
       <div
         style={{
