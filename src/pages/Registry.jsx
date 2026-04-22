@@ -54,14 +54,14 @@ export default function Registry() {
           ))}
         </div>
 
-        {/* Honeymoon Fund */}
+        {/* Future Home Fund */}
         <div className="bg-sunrise-pink/20 border border-sunrise-pink/40 rounded-lg p-8 text-center paper-lift">
           <p className="font-sans text-sunrise-orange text-xs tracking-[0.25em] uppercase mb-3">
             Most Appreciated
           </p>
-          <h2 className="font-serif text-palmetto text-3xl mb-4 text-pressed">Honeymoon Fund</h2>
+          <h2 className="font-serif text-palmetto text-3xl mb-4 text-pressed">Future Home Fund</h2>
           <p className="font-sans text-sage text-sm leading-relaxed mb-6 max-w-md mx-auto">
-            We're dreaming of an adventure together. A contribution to our honeymoon fund
+            We're dreaming of a cozy and welcoming home to start building our family. A contribution to our future home fund
             would mean the world to us.
           </p>
           {/* TODO: Replace with a real Stripe Payment Link or Venmo/PayPal link */}
@@ -69,7 +69,7 @@ export default function Registry() {
             href="#"
             className="inline-block bg-sunrise-orange text-paper font-sans text-xs tracking-[0.2em] uppercase py-3 px-8 rounded hover:bg-sunrise-orange/80 transition-colors"
           >
-            Contribute to Our Adventure
+            Contribute to Our Home
           </a>
           <p className="font-sans text-sage/60 text-xs mt-4">Secure payment via Stripe — coming soon</p>
         </div>
