@@ -18,6 +18,33 @@ service firebase.storage {
              ).data.uids;
     }
 
+    // ─── /selfies ─────────────────────────────────────────────────────────────
+    // Guest selfies for the Who's Who Polaroid Wall.
+    // Stored under selfies/{guestId}/{filename} so ownership can be verified
+    // by looking up the matching guest document in Firestore.
+    // Any authenticated user may read (needed to render the wall).
+    // A guest may only upload/delete their own selfie.
+    // Files must be images and no larger than 10 MB.
+    match /selfies/{guestId}/{filename} {
+      allow read:   if isAuthenticated();
+      allow create: if isAuthenticated()
+                    && request.resource.size        <= 10 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*')
+                    && (// Admin (couple) uploading their own selfie
+                        (isAdmin() && guestId == request.auth.uid)
+                        // Guest uploading their own selfie via linked guest doc
+                        || request.auth.uid == firestore.get(
+                             /databases/(default)/documents/guests/$(guestId)
+                           ).data.linkedUid);
+      allow delete: if isAuthenticated()
+                    && ((isAdmin() && guestId == request.auth.uid)
+                        || isAdmin()
+                        || request.auth.uid == firestore.get(
+                               /databases/(default)/documents/guests/$(guestId)
+                             ).data.linkedUid);
+      allow update: if false;
+    }
+
     // ─── /photos ─────────────────────────────────────────────────────────────
     // Only admins may upload or delete couple photos.
     // Any authenticated user may read (needed to render photo URLs in the app).

@@ -22,9 +22,11 @@ service cloud.firestore {
     // ─── /guests ─────────────────────────────────────────────────────────────
     // Any authenticated user can look up their invitation (RSVP flow needs this).
     // Only admins may create or delete guest records.
-    // Identity claim: an authenticated user may set `linkedUid` on a guest doc
-    // that is not yet claimed, provided they are only touching that one field
-    // and setting it to their own UID. This prevents hijacking and data tampering.
+    // Identity claim: an authenticated user may set `linkedUid` on any guest doc
+    // provided they are only touching that one field and setting it to their own
+    // UID. This allows re-linking on a new device (multi-device support) while
+    // still preventing tampering with any other fields. Admins can fully reset
+    // `linkedUid` to null via the admin dashboard.
     match /guests/{guestId} {
       allow read:   if isAuthenticated();
       allow create,
@@ -32,7 +34,6 @@ service cloud.firestore {
       allow update: if isAdmin()
                     || (isAuthenticated()
                         && request.resource.data.linkedUid == request.auth.uid
-                        && (!('linkedUid' in resource.data) || resource.data.linkedUid == null)
                         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['linkedUid']));
     }
 
@@ -57,6 +58,24 @@ service cloud.firestore {
       allow create,
             update,
             delete: if isAdmin();
+    }
+
+    // ─── /guestProfiles ───────────────────────────────────────────────────────
+    // Selfie + fun-fact profiles for the Who's Who Polaroid Wall.
+    // Document ID mirrors the corresponding /guests/{guestId} document.
+    // Any authenticated user may read (needed to render the wall).
+    // A guest may only write their own profile — verified by checking that the
+    // linked guest document's `linkedUid` matches the caller's UID.
+    // Admins may delete profiles (e.g. moderation).
+    match /guestProfiles/{guestId} {
+      allow read:  if isAuthenticated();
+      allow create,
+           update: if isAuthenticated()
+                   && (// Admin writing their own profile (couple's uid as key)
+                       (isAdmin() && guestId == request.auth.uid)
+                       // Guest writing their own profile via linked guest doc
+                       || get(/databases/$(database)/documents/guests/$(guestId)).data.linkedUid == request.auth.uid);
+      allow delete: if isAdmin();
     }
 
     // ─── /vendors ────────────────────────────────────────────────────────────

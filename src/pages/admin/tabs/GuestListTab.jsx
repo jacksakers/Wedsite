@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getAllGuests, addGuest, updateGuest, deleteGuest } from '../../../hooks/useGuests'
+import { getAllGuests, addGuest, updateGuest, deleteGuest, resetGuestUid } from '../../../hooks/useGuests'
 
 const EMPTY_FORM = { party: [{ name: '' }] }
 
@@ -118,6 +118,7 @@ export default function GuestListTab() {
   const [editGuest, setEditGuest] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
   const [deleting, setDeleting] = useState(null)
+  const [resetting, setResetting] = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -151,6 +152,17 @@ export default function GuestListTab() {
       setGuests(prev => prev.filter(g => g.id !== id))
     } finally {
       setDeleting(null)
+    }
+  }
+
+  async function handleResetClaim(id) {
+    if (!window.confirm('Reset this guest\'s device link? They will need to re-select their name on their next visit.')) return
+    setResetting(id)
+    try {
+      await resetGuestUid(id)
+      setGuests(prev => prev.map(g => g.id === id ? { ...g, linkedUid: null } : g))
+    } finally {
+      setResetting(null)
     }
   }
 
@@ -202,9 +214,16 @@ export default function GuestListTab() {
                     + {guest.party.slice(1).map(p => p.name).join(', ')}
                   </p>
                 )}
-                <p className="font-sans text-sage/50 text-xs mt-1">
-                  {guest.party?.length ?? 1} {guest.party?.length === 1 ? 'person' : 'people'}
-                </p>
+                <div className="flex items-center gap-3 mt-1">
+                  <p className="font-sans text-sage/50 text-xs">
+                    {guest.party?.length ?? 1} {guest.party?.length === 1 ? 'person' : 'people'}
+                  </p>
+                  {guest.linkedUid ? (
+                    <span className="font-sans text-palmetto/50 text-[10px] tracking-widest uppercase">✓ linked</span>
+                  ) : (
+                    <span className="font-sans text-sage/30 text-[10px] tracking-widest uppercase">not linked</span>
+                  )}
+                </div>
               </div>
               <div className="flex gap-4 ml-4 shrink-0 pt-0.5">
                 <button
@@ -213,6 +232,16 @@ export default function GuestListTab() {
                 >
                   Edit
                 </button>
+                {guest.linkedUid && (
+                  <button
+                    onClick={() => handleResetClaim(guest.id)}
+                    disabled={resetting === guest.id}
+                    className="font-sans text-xs text-sage/50 hover:text-sunrise-orange transition-colors disabled:opacity-50"
+                    title="Reset device link so this guest can re-claim from any device"
+                  >
+                    Reset link
+                  </button>
+                )}
                 <button
                   onClick={() => handleDelete(guest.id)}
                   disabled={deleting === guest.id}

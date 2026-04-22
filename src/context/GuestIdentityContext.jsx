@@ -42,7 +42,7 @@ export function GuestIdentityProvider({ children }) {
     } else {
       // Admin / couple flow
       getCoupleProfile(user.uid)
-        .then(profile => setLinkedGuest(profile ? { ...profile, isCouple: true } : null))
+        .then(profile => setLinkedGuest(profile ? { ...profile, isCouple: true, id: user.uid } : null))
         .catch(() => setLinkedGuest(null))
     }
   }, [user, authLoading])
@@ -59,7 +59,7 @@ export function GuestIdentityProvider({ children }) {
   const claimCoupleIdentity = useCallback(async ({ name, role }) => {
     if (!user) throw new Error('Not authenticated')
     await setCoupleProfile(user.uid, { name, role })
-    setLinkedGuest({ name, role, isCouple: true })
+    setLinkedGuest({ name, role, isCouple: true, id: user.uid })
   }, [user])
 
   return (

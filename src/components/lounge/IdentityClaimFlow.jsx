@@ -14,10 +14,7 @@ export default function IdentityClaimFlow() {
 
   useEffect(() => {
     getAllGuests()
-      .then(all => {
-        // Only show guests who haven't already claimed an identity
-        setGuests(all.filter(g => !g.linkedUid))
-      })
+      .then(all => setGuests(all))
       .catch(() => setError('Could not load the guest list. Please refresh and try again.'))
       .finally(() => setLoading(false))
   }, [])
@@ -25,6 +22,11 @@ export default function IdentityClaimFlow() {
   const filtered = guests.filter(g =>
     g.name.toLowerCase().includes(search.toLowerCase().trim())
   )
+
+  // True when the selected guest is already linked to a different anonymous session.
+  // The Firestore rule allows overwriting linkedUid when setting it to your own UID,
+  // so the user just needs to confirm they want to re-link this device.
+  const isReclaim = Boolean(selected?.linkedUid)
 
   async function handleClaim() {
     if (!selected) return
@@ -56,7 +58,7 @@ export default function IdentityClaimFlow() {
       </h2>
       <p className="font-sans text-sage text-sm leading-relaxed mb-10">
         Find your name below to personalize your experience. This links your
-        session to your invitation — you'll only need to do this once.
+        device to your invitation.
       </p>
 
       {selected ? (
@@ -69,6 +71,14 @@ export default function IdentityClaimFlow() {
             <p className="font-sans text-sage text-xs mt-1">
               Party of {selected.party.length}
             </p>
+          )}
+          {isReclaim && (
+            <div className="mt-3 pt-3 border-t border-sage/20">
+              <p className="font-sans text-sage text-xs leading-relaxed">
+                Looks like you've already signed in on another device.
+                Tap below to link <strong>this</strong> device to your identity instead.
+              </p>
+            </div>
           )}
           <button
             onClick={() => { setSelected(null); setTimeout(() => searchRef.current?.focus(), 50) }}
@@ -90,7 +100,7 @@ export default function IdentityClaimFlow() {
           <div className="max-h-60 overflow-y-auto rounded border border-sage/20 divide-y divide-sage/10">
             {filtered.length === 0 && (
               <p className="font-sans text-sage text-sm p-4 text-center">
-                {search ? 'No matches found.' : 'No unclaimed guests.'}
+                {search ? 'No matches found.' : 'No guests on the list yet.'}
               </p>
             )}
             {filtered.map(g => (
@@ -100,9 +110,14 @@ export default function IdentityClaimFlow() {
                 className="w-full text-left px-4 py-3 font-sans text-sm text-palmetto hover:bg-sage/10 transition-colors flex items-center justify-between"
               >
                 <span>{g.name}</span>
-                {g.party?.length > 1 && (
-                  <span className="text-sage text-xs">+{g.party.length - 1} guest{g.party.length - 1 !== 1 ? 's' : ''}</span>
-                )}
+                <span className="flex items-center gap-2 shrink-0 ml-2">
+                  {g.party?.length > 1 && (
+                    <span className="text-sage text-xs">+{g.party.length - 1} guest{g.party.length - 1 !== 1 ? 's' : ''}</span>
+                  )}
+                  {g.linkedUid && (
+                    <span className="text-sage/50 text-[10px] tracking-widest uppercase">linked</span>
+                  )}
+                </span>
               </button>
             ))}
           </div>
@@ -116,7 +131,12 @@ export default function IdentityClaimFlow() {
         disabled={!selected || claiming}
         className="bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-3 px-8 rounded hover:bg-palmetto/80 transition-colors disabled:opacity-50 w-full"
       >
-        {claiming ? 'Confirming…' : "That's me →"}
+        {claiming
+          ? 'Confirming…'
+          : isReclaim
+            ? 'Link this device →'
+            : "That's me →"
+        }
       </button>
     </div>
   )

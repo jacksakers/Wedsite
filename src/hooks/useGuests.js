@@ -41,10 +41,19 @@ export async function deleteGuest(id) {
 
 /**
  * Links an anonymous UID to a guest document.
- * The Firestore rule only permits this when linkedUid is not already set.
+ * Also used for re-linking (multi-device): the Firestore rule allows
+ * overwriting `linkedUid` when the new value is the caller's own UID.
  */
 export async function linkGuestUid(guestId, uid) {
   await updateDoc(doc(db, 'guests', guestId), { linkedUid: uid })
+}
+
+/**
+ * Removes the linkedUid from a guest document (admin only).
+ * Allows a guest to re-claim their identity from scratch on any device.
+ */
+export async function resetGuestUid(guestId) {
+  await updateDoc(doc(db, 'guests', guestId), { linkedUid: null })
 }
 
 /**
