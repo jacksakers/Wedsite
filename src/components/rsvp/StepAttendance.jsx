@@ -1,17 +1,9 @@
-import { MEAL_OPTIONS } from '../../constants/weddingInfo'
-
 export default function StepAttendance({ party, attendance, onChange, onNext, onBack }) {
   const allAnswered = party.every((_, i) => attendance[i]?.attending !== undefined)
 
   function toggle(index, attending) {
     const updated = [...attendance]
     updated[index] = { ...updated[index], name: party[index].name, attending }
-    onChange(updated)
-  }
-
-  function setMeal(index, meal) {
-    const updated = [...attendance]
-    updated[index] = { ...updated[index], meal }
     onChange(updated)
   }
 
@@ -52,28 +44,7 @@ export default function StepAttendance({ party, attendance, onChange, onNext, on
               </button>
             </div>
 
-            {attendance[i]?.attending === true && (
-              <div>
-                <p className="font-sans text-xs tracking-widest uppercase text-sage/70 mb-2">
-                  Meal Preference
-                </p>
-                <div className="flex gap-2 flex-wrap">
-                  {MEAL_OPTIONS.map(option => (
-                    <button
-                      key={option}
-                      onClick={() => setMeal(i, option)}
-                      className={`px-4 py-1.5 rounded-full text-xs font-sans transition-colors border ${
-                        attendance[i]?.meal === option
-                          ? 'bg-sunrise-orange text-paper border-sunrise-orange'
-                          : 'bg-transparent text-sage border-sage/40 hover:border-sunrise-orange hover:text-sunrise-orange'
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+
           </div>
         ))}
       </div>

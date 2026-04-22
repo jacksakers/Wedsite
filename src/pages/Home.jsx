@@ -1,5 +1,5 @@
 import CountdownTimer from '../components/CountdownTimer'
-import { COUPLE_DISPLAY, COUPLE_FULL_DISPLAY, VENUE_NAME, VENUE_CITY, WEDDING_TIME_DISPLAY } from '../constants/weddingInfo'
+import { COUPLE_DISPLAY, VENUE_NAME, VENUE_CITY, WEDDING_TIME_DISPLAY, PARTNER_ONE_FIRST, PARTNER_ONE_MIDDLE, PARTNER_ONE_LAST, PARTNER_TWO_FIRST, PARTNER_TWO_MIDDLE, PARTNER_TWO_LAST } from '../constants/weddingInfo'
 import dockPhoto from '../assets/dock_photo.jpg'
 import dressedUp from '../assets/dressed_up.jpg'
 import lyonRun from '../assets/lyon_run.jpg'
@@ -74,8 +74,10 @@ export default function Home() {
             <p className="font-sans text-sunrise-pink tracking-[0.35em] uppercase text-xs mb-8">
               You are cordially invited to celebrate the wedding of
             </p>
-            <h1 className="font-serif text-paper text-4xl sm:text-5xl md:text-6xl leading-none mb-6 text-gilt">
-              {COUPLE_FULL_DISPLAY}
+            <h1 className="font-serif text-paper leading-tight mb-6 text-gilt flex flex-col items-center gap-1" style={{ fontSize: 'clamp(1.6rem, 7vw, 3.75rem)' }}>
+              <span className="whitespace-nowrap">{PARTNER_ONE_FIRST} {PARTNER_ONE_MIDDLE} {PARTNER_ONE_LAST}</span>
+              <span className="whitespace-nowrap" style={{ fontSize: 'clamp(1.2rem, 5vw, 3rem)' }}>&amp;</span>
+              <span className="whitespace-nowrap">{PARTNER_TWO_FIRST} {PARTNER_TWO_MIDDLE} {PARTNER_TWO_LAST}</span>
             </h1>
             <div className="flex items-center justify-center gap-4 my-6">
               <span className="block h-px w-16 bg-sunrise-pink/50" />

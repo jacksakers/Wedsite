@@ -2,19 +2,21 @@ import { useState, useEffect } from 'react'
 import { collection, getDocs, orderBy, query, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../../../firebase'
 
-const TABLE_HEADERS = ['Guest', 'Party Member', 'Attending', 'Meal', 'Song Request', 'Notes', '']
+const TABLE_HEADERS = ['Guest', 'Party Member', 'Attending', 'Song Request', 'Notes', 'Phone', 'Mailing Address', '']
 
 function exportToCSV(rsvps) {
-  const rows = [['Guest', 'Party Member', 'Attending', 'Meal', 'Song Request', 'Notes', 'Submitted']]
+  const rows = [['Guest', 'Party Member', 'Attending', 'Song Request', 'Notes', 'Phone', 'Mailing Address', 'Submitted']]
   rsvps.forEach(r => {
+    const address = [r.addressLine1, r.addressCity, r.addressState, r.addressZip].filter(Boolean).join(', ')
     ;(r.partyAttendance ?? []).forEach((p, i) => {
       rows.push([
         i === 0 ? r.guestName : '',
         p.name,
         p.attending ? 'Yes' : 'No',
-        p.meal || '',
         i === 0 ? r.songRequest || '' : '',
         i === 0 ? r.notes || '' : '',
+        i === 0 ? r.phone || '' : '',
+        i === 0 ? address : '',
         i === 0 ? (r.submittedAt?.toDate?.().toLocaleDateString() ?? '') : '',
       ])
     })
@@ -123,9 +125,14 @@ export default function RSVPsTab() {
                         {p.attending ? 'Yes' : 'No'}
                       </span>
                     </td>
-                    <td className="font-sans text-sage text-sm py-3 pr-4">{p.meal || '—'}</td>
                     <td className="font-sans text-sage text-sm py-3 pr-4">{i === 0 ? rsvp.songRequest || '—' : ''}</td>
                     <td className="font-sans text-sage text-sm py-3 pr-4">{i === 0 ? rsvp.notes || '—' : ''}</td>
+                    <td className="font-sans text-sage text-sm py-3 pr-4 whitespace-nowrap">{i === 0 ? rsvp.phone || '—' : ''}</td>
+                    <td className="font-sans text-sage text-sm py-3 pr-4">
+                      {i === 0
+                        ? [rsvp.addressLine1, rsvp.addressCity, rsvp.addressState, rsvp.addressZip].filter(Boolean).join(', ') || '—'
+                        : ''}
+                    </td>
                     <td className="py-3">
                       {i === 0 && (
                         <button
