@@ -1,79 +1,28 @@
+import { useState, useEffect } from 'react'
 import AccordionItem from '../components/AccordionItem'
 import { VENUE_CITY } from '../constants/weddingInfo'
-
-const SCHEDULE = [
-  { time: '2:30 PM', event: 'Guest Arrival & Seating', note: 'Please arrive 30 minutes before the ceremony.' },
-  { time: '3:00 PM', event: 'Ceremony Begins', note: 'Ceremony will be held in the garden.' },
-  { time: '3:45 PM', event: 'Cocktail Hour', note: 'Light refreshments on the veranda.' },
-  { time: '5:00 PM', event: 'Reception Dinner', note: '' },
-  { time: '8:00 PM', event: 'Dancing & Celebration', note: '' },
-  { time: '10:00 PM', event: 'Grand Send-Off', note: '' },
-]
-
-const HOTELS = [
-  {
-    name: 'Hotel Block 1',           // TODO: Replace with actual hotel name
-    distance: '5 min drive',
-    note: 'Room block available — mention our wedding when booking.',
-    href: '#',                        // TODO: Replace with booking link
-  },
-  {
-    name: 'Hotel Block 2',           // TODO: Replace with actual hotel name
-    distance: '10 min drive',
-    note: 'Great value option near I-26.',
-    href: '#',                        // TODO: Replace with booking link
-  },
-]
-
-const COLUMBIA_GUIDE = [
-  {
-    category: 'Restaurants',
-    items: ['Add your favorites here', 'Another recommendation', 'A third spot'],
-  },
-  {
-    category: 'Things To Do',
-    items: ['Riverbanks Zoo & Garden', 'Soda City Market', 'Congaree National Park'],
-  },
-  {
-    category: 'Coffee & Sweets',
-    items: ['Add a local café here'],
-  },
-]
-
-const FAQS = [
-  {
-    question: 'What is the dress code?',
-    answer:
-      'Garden Formal or Cocktail Attire. Think florals, pastels, and elegance. Please avoid wearing white or ivory. We recommend block heels or wedges as portions of the reception are on grass.',
-  },
-  {
-    question: 'Can I bring a plus-one?',
-    answer:
-      'Due to our intimate venue size, plus-ones are limited. Your invitation will specify if a guest is included. Please reach out to us directly with any questions.',
-  },
-  {
-    question: 'Are children welcome?',
-    answer:
-      'We adore your little ones! However, our celebration is designed as an adult evening. We encourage you to use this as a well-deserved night out.',
-  },
-  {
-    question: 'Will there be dietary options?',
-    answer:
-      'Absolutely. Please note any dietary restrictions (vegetarian, vegan, gluten-free, allergies) in your RSVP and we will do our best to accommodate everyone.',
-  },
-  {
-    question: 'Is the venue accessible?',
-    answer:
-      'Yes. The venue is fully accessible. Please contact us directly if you have specific needs and we will make sure you are taken care of.',
-  },
-  {
-    question: 'What happens if it rains?',
-    answer:
-      'The venue has a beautiful indoor contingency space. The celebration goes on, rain or shine!',
-  },
-]
+import {
+  getSiteContent,
+  DEFAULT_SCHEDULE,
+  DEFAULT_HOTELS,
+  DEFAULT_COLUMBIA_GUIDE,
+  DEFAULT_FAQS,
+} from '../hooks/useSiteContent'
 
 export default function Information() {
+  const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE)
+  const [hotels, setHotels] = useState(DEFAULT_HOTELS)
+  const [columbiaGuide, setColumbiaGuide] = useState(DEFAULT_COLUMBIA_GUIDE)
+  const [faqs, setFaqs] = useState(DEFAULT_FAQS)
+
+  useEffect(() => {
+    getSiteContent().then(data => {
+      setSchedule(data.schedule)
+      setHotels(data.hotels)
+      setColumbiaGuide(data.columbiaGuide)
+      setFaqs(data.faqs)
+    }).catch(() => { /* fall back to defaults already in state */ })
+  }, [])
   return (
     <main className="bg-paper space-y-2">
       {/* Page Header */}
@@ -90,11 +39,11 @@ export default function Information() {
           Day-of Schedule
         </h2>
         <ol className="space-y-0">
-          {SCHEDULE.map(({ time, event, note }, index) => (
-            <li key={time} className="flex gap-6">
+          {schedule.map(({ id, time, event, note }, index) => (
+            <li key={id ?? time} className="flex gap-6">
               <div className="flex flex-col items-center">
                 <div className="w-3 h-3 rounded-full bg-sage mt-1.5 flex-shrink-0 ring-4 ring-paper" />
-                {index < SCHEDULE.length - 1 && (
+                {index < schedule.length - 1 && (
                   <div className="w-px flex-1 bg-sage/30 my-1" />
                 )}
               </div>
@@ -118,9 +67,9 @@ export default function Information() {
           Travel & Lodging
         </h2>
         <div className="grid sm:grid-cols-2 gap-6 mb-8">
-          {HOTELS.map(({ name, distance, note, href }) => (
+          {hotels.map(({ id, name, distance, note, href }) => (
             <a
-              key={name}
+              key={id ?? name}
               href={href}
               className="block bg-sage/10 rounded-lg p-6 border border-sage/20 hover:bg-sage/20 transition-colors"
             >
@@ -148,14 +97,14 @@ export default function Information() {
           Our favorite spots in the Columbia / {VENUE_CITY} area
         </p>
         <div className="grid sm:grid-cols-3 gap-8">
-          {COLUMBIA_GUIDE.map(({ category, items }) => (
-            <div key={category}>
+          {columbiaGuide.map(({ id, category, items }) => (
+            <div key={id ?? category}>
               <h3 className="font-sans text-xs tracking-[0.2em] uppercase text-sunrise-orange mb-4 border-b border-sage/30 pb-2">
                 {category}
               </h3>
               <ul className="space-y-2">
-                {items.map(item => (
-                  <li key={item} className="font-sans text-sage text-sm">{item}</li>
+                {items.map((item, idx) => (
+                  <li key={idx} className="font-sans text-sage text-sm">{item}</li>
                 ))}
               </ul>
             </div>
@@ -171,8 +120,8 @@ export default function Information() {
           Frequently Asked Questions
         </h2>
         <div>
-          {FAQS.map(({ question, answer }) => (
-            <AccordionItem key={question} question={question} answer={answer} />
+          {faqs.map(({ id, question, answer }) => (
+            <AccordionItem key={id ?? question} question={question} answer={answer} />
           ))}
         </div>
       </section>

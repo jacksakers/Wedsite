@@ -8,14 +8,18 @@ import GuestListTab from './tabs/GuestListTab'
 import PhotosTab from './tabs/PhotosTab'
 import AdminsTab from './tabs/AdminsTab'
 import VendorsTab from './tabs/VendorsTab'
+import InfoContentTab from './tabs/InfoContentTab'
+import OurStoryTab from './tabs/OurStoryTab'
 
 const TABS = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'rsvps', label: 'RSVPs' },
-  { id: 'guests', label: 'Guest List' },
-  { id: 'photos', label: 'Photos' },
-  { id: 'vendors', label: 'Vendors' },
-  { id: 'admins', label: 'Admins' },
+  { id: 'overview',  label: 'Overview' },
+  { id: 'rsvps',     label: 'RSVPs' },
+  { id: 'guests',    label: 'Guest List' },
+  { id: 'photos',    label: 'Photos' },
+  { id: 'vendors',   label: 'Vendors' },
+  { id: 'admins',    label: 'Admins' },
+  { id: 'details',   label: 'Details Page' },
+  { id: 'ourstory',  label: 'Our Story' },
 ]
 
 export default function AdminDashboard() {
@@ -33,12 +37,22 @@ export default function AdminDashboard() {
       <div className="bg-palmetto py-8 px-6 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <h1 className="font-serif text-paper text-2xl">Admin Dashboard</h1>
-          <button
-            onClick={handleSignOut}
-            className="font-sans text-xs tracking-widest uppercase text-paper/70 border border-paper/30 rounded px-4 py-2 hover:text-paper hover:border-paper transition-colors"
-          >
-            Sign Out
-          </button>
+          <div className="flex items-center gap-3">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-sans text-xs tracking-widest uppercase text-paper/70 border border-paper/30 rounded px-4 py-2 hover:text-paper hover:border-paper transition-colors"
+            >
+              Preview Site ↗
+            </a>
+            <button
+              onClick={handleSignOut}
+              className="font-sans text-xs tracking-widest uppercase text-paper/70 border border-paper/30 rounded px-4 py-2 hover:text-paper hover:border-paper transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
 
         {/* Tab nav */}
@@ -61,12 +75,14 @@ export default function AdminDashboard() {
 
       {/* Tab content */}
       <div className="max-w-6xl mx-auto py-10 px-6">
-        {activeTab === 'overview' && <OverviewTab />}
-        {activeTab === 'rsvps'    && <RSVPsTab />}
-        {activeTab === 'guests'   && <GuestListTab />}
-        {activeTab === 'photos'   && <PhotosTab />}
-        {activeTab === 'vendors'  && <VendorsTab />}
-        {activeTab === 'admins'   && <AdminsTab />}
+        {activeTab === 'overview'  && <OverviewTab />}
+        {activeTab === 'rsvps'     && <RSVPsTab />}
+        {activeTab === 'guests'    && <GuestListTab />}
+        {activeTab === 'photos'    && <PhotosTab />}
+        {activeTab === 'vendors'   && <VendorsTab />}
+        {activeTab === 'admins'    && <AdminsTab />}
+        {activeTab === 'details'   && <InfoContentTab />}
+        {activeTab === 'ourstory'  && <OurStoryTab />}
       </div>
     </main>
   )

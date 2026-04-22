@@ -79,12 +79,15 @@ service cloud.firestore {
       // config/coupleProfiles: maps admin UIDs to { name, role }.
       //   Only admins may read or write this document.
       allow read: if docId == 'announcement'
+                  || docId == 'ourStory'
                   || (docId == 'admins' && isAuthenticated())
-                  || (docId == 'coupleProfiles' && isAdmin());
+                  || (docId == 'coupleProfiles' && isAdmin())
+                  || (docId == 'siteContent' && isAuthenticated());
       allow create: if (docId == 'admins'
                         && isAuthenticated()
                         && request.auth.token.firebase.sign_in_provider != 'anonymous')
-                    || (docId == 'coupleProfiles' && isAdmin());
+                    || (docId == 'coupleProfiles' && isAdmin())
+                    || ((docId == 'siteContent' || docId == 'ourStory') && isAdmin());
       allow update,
             delete: if isAdmin();
     }
