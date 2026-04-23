@@ -4,8 +4,79 @@
       "collectionGroup": "photos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "category",    "order": "ASCENDING"  },
-        { "fieldPath": "uploadedAt",  "order": "DESCENDING" }
+        { "fieldPath": "category",   "order": "ASCENDING"  },
+        { "fieldPath": "uploadedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isDeleted",        "order": "ASCENDING"  },
+        { "fieldPath": "isPrivate",        "order": "ASCENDING"  },
+        { "fieldPath": "lastActivityAt",   "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isDeleted",  "order": "ASCENDING"  },
+        { "fieldPath": "isPrivate",  "order": "ASCENDING"  },
+        { "fieldPath": "createdAt",  "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isDeleted",        "order": "ASCENDING"  },
+        { "fieldPath": "isPrivate",        "order": "ASCENDING"  },
+        { "fieldPath": "hashtags",         "arrayConfig": "CONTAINS" },
+        { "fieldPath": "lastActivityAt",   "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isDeleted",      "order": "ASCENDING"  },
+        { "fieldPath": "authorGuestId",  "order": "ASCENDING"  },
+        { "fieldPath": "createdAt",      "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isDeleted",      "order": "ASCENDING"  },
+        { "fieldPath": "isPrivate",      "order": "ASCENDING"  },
+        { "fieldPath": "authorGuestId",  "order": "ASCENDING"  },
+        { "fieldPath": "createdAt",      "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isDeleted",  "order": "ASCENDING" },
+        { "fieldPath": "createdAt",  "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "recipientUid", "order": "ASCENDING"  },
+        { "fieldPath": "createdAt",    "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "recipientUid", "order": "ASCENDING" },
+        { "fieldPath": "read",         "order": "ASCENDING" }
       ]
     }
   ],

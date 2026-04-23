@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { COUPLE_DISPLAY } from '../constants/weddingInfo'
+import NotificationBell from './NotificationBell'
 
 const NAV_LINKS = [
   { label: 'Our Story', to: '/story' },
@@ -35,31 +36,35 @@ export default function Navbar() {
               {label}
             </NavLink>
           ))}
+          <NotificationBell />
         </nav>
 
-        {/* Mobile Hamburger */}
-        <button
-          className="md:hidden p-2 flex flex-col justify-center gap-[5px]"
+        {/* Mobile notification bell */}
+        <div className="md:hidden flex items-center gap-1">
+          <NotificationBell />
+          <button
+            className="p-2 flex flex-col justify-center gap-[5px]"
           onClick={() => setIsOpen(prev => !prev)}
-          aria-expanded={isOpen}
-          aria-label="Toggle navigation menu"
-        >
-          <span
-            className={`block h-0.5 w-6 bg-palmetto origin-center transition-transform duration-200 ${
-              isOpen ? 'translate-y-[7px] rotate-45' : ''
-            }`}
-          />
-          <span
-            className={`block h-0.5 w-6 bg-palmetto transition-opacity duration-200 ${
-              isOpen ? 'opacity-0' : ''
-            }`}
-          />
-          <span
-            className={`block h-0.5 w-6 bg-palmetto origin-center transition-transform duration-200 ${
-              isOpen ? '-translate-y-[7px] -rotate-45' : ''
-            }`}
-          />
-        </button>
+            aria-expanded={isOpen}
+            aria-label="Toggle navigation menu"
+          >
+            <span
+              className={`block h-0.5 w-6 bg-palmetto origin-center transition-transform duration-200 ${
+                isOpen ? 'translate-y-[7px] rotate-45' : ''
+              }`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-palmetto transition-opacity duration-200 ${
+                isOpen ? 'opacity-0' : ''
+              }`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-palmetto origin-center transition-transform duration-200 ${
+                isOpen ? '-translate-y-[7px] -rotate-45' : ''
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}

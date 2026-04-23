@@ -45,6 +45,20 @@ service firebase.storage {
       allow update: if false;
     }
 
+    // ─── /postPhotos ──────────────────────────────────────────────────────────
+    // Photos attached to social posts. Any authenticated user may read (needed
+    // to render photos in the Lounge). Any authenticated user may upload their
+    // own post photos. Only admins or the uploader may delete.
+    // Files must be images and no larger than 15 MB.
+    match /postPhotos/{filename} {
+      allow read:   if isAuthenticated();
+      allow create: if isAuthenticated()
+                    && request.resource.size        <= 15 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+      allow delete: if isAdmin();
+      allow update: if false;
+    }
+
     // ─── /photos ─────────────────────────────────────────────────────────────
     // Only admins may upload or delete couple photos.
     // Any authenticated user may read (needed to render photo URLs in the app).

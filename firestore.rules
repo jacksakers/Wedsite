@@ -78,6 +78,50 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ─── /posts ──────────────────────────────────────────────────────────────
+    // The social gathering posts. Any authenticated user may read public posts
+    // and create posts. Authors (by uid) and admins may edit/delete.
+    // Private posts (isPrivate: true) are only readable by the author + admins.
+    match /posts/{postId} {
+      allow read: if isAuthenticated()
+                  && (resource.data.isPrivate == false
+                      || isAdmin()
+                      || request.auth.uid == resource.data.authorUid);
+      allow create: if isAuthenticated()
+                    && request.resource.data.authorUid == request.auth.uid
+                    && request.resource.data.isDeleted == false;
+      allow update: if isAuthenticated()
+                    && (isAdmin()
+                        || request.auth.uid == resource.data.authorUid);
+      allow delete: if isAdmin();
+
+      // ─── /posts/{postId}/comments ─────────────────────────────────────────
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated()
+                      && request.resource.data.authorUid == request.auth.uid
+                      && request.resource.data.isDeleted == false;
+        allow update: if isAuthenticated()
+                      && (isAdmin()
+                          || request.auth.uid == resource.data.authorUid);
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ─── /notifications ──────────────────────────────────────────────────────
+    // Only the recipient may read their own notifications.
+    // Any authenticated user may create a notification (needed for like/comment
+    // client-side writes). Only the recipient may update (mark as read).
+    match /notifications/{notifId} {
+      allow read:   if isAuthenticated()
+                    && request.auth.uid == resource.data.recipientUid;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated()
+                    && request.auth.uid == resource.data.recipientUid;
+      allow delete: if isAuthenticated()
+                    && request.auth.uid == resource.data.recipientUid;
+    }
+
     // ─── /vendors ────────────────────────────────────────────────────────────
     // Entirely private — admin eyes only.
     match /vendors/{vendorId} {
