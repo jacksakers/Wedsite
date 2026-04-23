@@ -10,6 +10,7 @@ import MentionInput from './MentionInput'
 export default function CommentItem({
   comment,
   post,
+  profiles = {},
   guests,
   currentUid,
   currentGuest,
@@ -27,6 +28,7 @@ export default function CommentItem({
 
   const isOwn = comment.authorUid === currentUid
   const firstName = comment.authorName?.split(' ')[0] ?? comment.authorName
+  const selfieUrl = comment.authorGuestId ? profiles[comment.authorGuestId]?.selfieUrl ?? null : null
 
   if (deleted) return null
 
@@ -66,11 +68,17 @@ export default function CommentItem({
     <div className={`flex gap-2.5 ${indent ? 'ml-8 mt-2' : 'mt-3'}`}>
       {/* Avatar */}
       <div
-        className="w-7 h-7 rounded-full bg-sage/20 shrink-0 flex items-center justify-center text-xs font-serif text-sage border border-sage/10 cursor-pointer hover:ring-1 hover:ring-sage/40 transition-all"
+        className="w-7 h-7 rounded-full shrink-0 overflow-hidden border border-sage/10 cursor-pointer hover:ring-1 hover:ring-sage/40 transition-all"
         onClick={() => onReply?.(comment)}
         title={comment.authorName}
       >
-        {firstName?.[0] ?? '?'}
+        {selfieUrl ? (
+          <img src={selfieUrl} alt={firstName} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-sage/20 flex items-center justify-center text-xs font-serif text-sage">
+            {firstName?.[0] ?? '?'}
+          </div>
+        )}
       </div>
 
       <div className="flex-1 min-w-0">

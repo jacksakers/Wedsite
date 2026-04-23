@@ -11,8 +11,8 @@ import PolaroidWall from '../components/lounge/PolaroidWall'
 import SocialSpace from '../components/lounge/social/SocialSpace'
 
 const TABS = [
-  { value: 'social', label: 'The Gathering' },
   { value: 'wall',   label: "Who's Who" },
+  { value: 'social', label: 'The Gathering' },
 ]
 
 export default function Lounge() {

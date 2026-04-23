@@ -23,6 +23,7 @@ import CommentThread from './CommentThread'
 export default function PostCard({
   post,
   profile,
+  profiles = {},
   guests,
   currentUid,
   currentGuest,
@@ -327,6 +328,7 @@ export default function PostCard({
         <div className="px-4 pb-4">
           <CommentThread
             post={post}
+            profiles={profiles}
             guests={guests}
             currentUid={currentUid}
             currentGuest={currentGuest}

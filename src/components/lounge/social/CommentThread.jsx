@@ -7,7 +7,7 @@ import CommentItem from './CommentItem'
 /**
  * Full comment thread for a post, with nested replies.
  */
-export default function CommentThread({ post, guests, currentUid, currentGuest, isAdmin }) {
+export default function CommentThread({ post, profiles = {}, guests, currentUid, currentGuest, isAdmin }) {
   const [comments, setComments]       = useState([])
   const [loading, setLoading]         = useState(true)
   const [replyTo, setReplyTo]         = useState(null) // comment object | null
@@ -100,6 +100,7 @@ export default function CommentThread({ post, guests, currentUid, currentGuest, 
             <CommentItem
               comment={comment}
               post={post}
+              profiles={profiles}
               guests={guests}
               currentUid={currentUid}
               currentGuest={currentGuest}
@@ -112,6 +113,7 @@ export default function CommentThread({ post, guests, currentUid, currentGuest, 
                 key={reply.id}
                 comment={reply}
                 post={post}
+                profiles={profiles}
                 guests={guests}
                 currentUid={currentUid}
                 currentGuest={currentGuest}
@@ -153,8 +155,14 @@ export default function CommentThread({ post, guests, currentUid, currentGuest, 
 
       {/* Compose */}
       <form onSubmit={handleSubmit} className="flex gap-2 mt-3 items-end">
-        <div className="w-7 h-7 rounded-full bg-sage/20 shrink-0 flex items-center justify-center text-xs font-serif text-sage border border-sage/10">
-          {currentGuest.name?.[0] ?? '?'}
+        <div className="w-7 h-7 rounded-full shrink-0 overflow-hidden border border-sage/10">
+          {profiles[currentGuest.id]?.selfieUrl ? (
+            <img src={profiles[currentGuest.id].selfieUrl} alt={currentGuest.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-sage/20 flex items-center justify-center text-xs font-serif text-sage">
+              {currentGuest.name?.[0] ?? '?'}
+            </div>
+          )}
         </div>
         <div className="flex-1">
           <MentionInput

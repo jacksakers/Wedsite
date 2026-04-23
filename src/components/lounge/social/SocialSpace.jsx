@@ -262,6 +262,7 @@ export default function SocialSpace({ currentGuest, currentUser, isAdmin }) {
             key={post.id}
             post={post}
             profile={post.authorGuestId ? profiles[post.authorGuestId] : null}
+            profiles={profiles}
             guests={guests}
             currentUid={currentUser.uid}
             currentGuest={currentGuest}
