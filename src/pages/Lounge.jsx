@@ -9,10 +9,12 @@ import EditProfilePanel from '../components/lounge/EditProfilePanel'
 import CoupleEditProfilePanel from '../components/lounge/CoupleEditProfilePanel'
 import PolaroidWall from '../components/lounge/PolaroidWall'
 import SocialSpace from '../components/lounge/social/SocialSpace'
+import MixtapeSpace from '../components/lounge/mixtape/MixtapeSpace'
 
 const TABS = [
-  { value: 'wall',   label: "Who's Who" },
-  { value: 'social', label: 'The Gathering' },
+  { value: 'wall',    label: "Who's Who" },
+  { value: 'social',  label: 'The Gathering' },
+  { value: 'mixtape', label: 'The Mixtape' },
 ]
 
 export default function Lounge() {
@@ -118,6 +120,15 @@ export default function Lounge() {
       {/* ── The Gathering (social space) ───────────────────────────────────── */}
       {activeTab === 'social' && (
         <SocialSpace
+          currentGuest={linkedGuest}
+          currentUser={user}
+          isAdmin={isAdmin || isCouple}
+        />
+      )}
+
+      {/* ── The Mixtape ─────────────────────────────────────────────────────── */}
+      {activeTab === 'mixtape' && (
+        <MixtapeSpace
           currentGuest={linkedGuest}
           currentUser={user}
           isAdmin={isAdmin || isCouple}

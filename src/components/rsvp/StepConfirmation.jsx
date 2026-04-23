@@ -12,7 +12,7 @@ export default function StepConfirmation({ guestName, anyAttending }) {
 
       <p className="font-sans text-sage leading-relaxed mb-4 max-w-sm mx-auto">
         {anyAttending
-          ? `Thank you, ${guestName}. We can't wait to celebrate with you on March 13, 2027.`
+          ? `Thank you, ${guestName}. We can't wait to celebrate with you on March 13, 2027. Check out the Lounge to connect with other guests before the big day!`
           : `Thank you for letting us know, ${guestName}. We'll be thinking of you and are so grateful for your love and support.`}
       </p>
 

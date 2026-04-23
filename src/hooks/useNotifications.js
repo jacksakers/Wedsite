@@ -167,6 +167,7 @@ const NOTIF_LABELS = {
   reply:           (n) => `${n.actorName} replied to your comment`,
   mention_post:    (n) => `${n.actorName} mentioned you in a post`,
   mention_comment: (n) => `${n.actorName} mentioned you in a comment`,
+  upvote_song:     (n) => `${n.actorName} upvoted your song recommendation`,
 }
 
 export function getNotificationLabel(notification) {

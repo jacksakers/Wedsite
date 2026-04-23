@@ -131,6 +131,57 @@ service cloud.firestore {
                     && request.auth.uid == resource.data.recipientUid;
     }
 
+    // ─── /mixtape ─────────────────────────────────────────────────────────────
+    // Crowdsourced reception playlist. Any authenticated guest can read and
+    // create songs. Upvoting (touching upvotes/coupleUpvotes/upvoteCount/score/
+    // brideVoted/groomVoted) is allowed for any authenticated user.
+    // Soft-delete (isDeleted only) is allowed for the requester or an admin.
+    // Admins may do any update.
+    match /mixtape/{songId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAuthenticated()
+                    && request.resource.data.requestedByUid == request.auth.uid
+                    && request.resource.data.isDeleted == false;
+      allow update: if isAuthenticated()
+                    && (
+                      // Admins may do anything
+                      isAdmin()
+                      // Any authenticated user may toggle their upvote
+                      || request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['upvotes', 'upvoteCount', 'score'])
+                      // Couple members may also touch coupleUpvotes + role booleans
+                      || (isAdmin()
+                          && request.resource.data.diff(resource.data).affectedKeys()
+                               .hasOnly(['upvotes', 'coupleUpvotes', 'upvoteCount', 'score', 'brideVoted', 'groomVoted']))
+                      // Author or admin may soft-delete
+                      || ((resource.data.requestedByUid == request.auth.uid || isAdmin())
+                          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isDeleted']))
+                    );
+      allow delete: if false; // soft-delete only
+
+      // Comments subcollection
+      match /comments/{commentId} {
+        allow read:   if isAuthenticated();
+        allow create: if isAuthenticated()
+                      && request.resource.data.authorUid == request.auth.uid
+                      && request.resource.data.isDeleted == false;
+        allow update: if isAuthenticated()
+                      && (
+                        isAdmin()
+                        // Author may edit content
+                        || (resource.data.authorUid == request.auth.uid
+                            && request.resource.data.diff(resource.data).affectedKeys()
+                                 .hasOnly(['content', 'editedAt']))
+                        // Anyone may like/unlike
+                        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+                        // Author or admin may soft-delete
+                        || ((resource.data.authorUid == request.auth.uid || isAdmin())
+                            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isDeleted']))
+                      );
+        allow delete: if false;
+      }
+    }
+
     // ─── /vendors ────────────────────────────────────────────────────────────
     // Entirely private — admin eyes only.
     match /vendors/{vendorId} {

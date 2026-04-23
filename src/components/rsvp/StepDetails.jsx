@@ -11,19 +11,6 @@ export default function StepDetails({ values, onChange, onSubmit, onBack, loadin
       <div className="space-y-6 mb-8">
         <div>
           <label className="font-sans text-xs tracking-widest uppercase text-sage/70 block mb-2">
-            Song Request
-          </label>
-          <input
-            type="text"
-            value={values.songRequest}
-            onChange={e => onChange({ ...values, songRequest: e.target.value })}
-            placeholder="What song will get you on the dance floor?"
-            className="w-full border border-sage/40 rounded px-4 py-3 font-sans text-palmetto bg-paper focus:outline-none focus:ring-2 focus:ring-sage/50"
-          />
-        </div>
-
-        <div>
-          <label className="font-sans text-xs tracking-widest uppercase text-sage/70 block mb-2">
             Dietary Restrictions or Allergies
           </label>
           <textarea

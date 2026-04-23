@@ -44,7 +44,11 @@ export default function NotificationBell() {
   async function handleNotifClick(notif) {
     setOpen(false)
     if (!notif.read) await markNotificationRead(notif.id)
-    navigate(`/lounge?tab=social&post=${notif.postId}`)
+    if (notif.type === 'upvote_song') {
+      navigate('/lounge?tab=mixtape')
+    } else {
+      navigate(`/lounge?tab=social&post=${notif.postId}`)
+    }
   }
 
   async function handleMarkAll() {

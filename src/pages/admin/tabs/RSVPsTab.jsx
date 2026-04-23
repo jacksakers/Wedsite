@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { collection, getDocs, orderBy, query, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../../../firebase'
 
-const TABLE_HEADERS = ['Guest', 'Party Member', 'Attending', 'Song Request', 'Notes', 'Phone', 'Mailing Address', '']
+const TABLE_HEADERS = ['Guest', 'Party Member', 'Attending', 'Notes', 'Phone', 'Mailing Address', '']
 
 function exportToCSV(rsvps) {
-  const rows = [['Guest', 'Party Member', 'Attending', 'Song Request', 'Notes', 'Phone', 'Mailing Address', 'Submitted']]
+  const rows = [['Guest', 'Party Member', 'Attending', 'Notes', 'Phone', 'Mailing Address', 'Submitted']]
   rsvps.forEach(r => {
     const address = [r.addressLine1, r.addressCity, r.addressState, r.addressZip].filter(Boolean).join(', ')
     ;(r.partyAttendance ?? []).forEach((p, i) => {
@@ -13,7 +13,6 @@ function exportToCSV(rsvps) {
         i === 0 ? r.guestName : '',
         p.name,
         p.attending ? 'Yes' : 'No',
-        i === 0 ? r.songRequest || '' : '',
         i === 0 ? r.notes || '' : '',
         i === 0 ? r.phone || '' : '',
         i === 0 ? address : '',
@@ -125,7 +124,6 @@ export default function RSVPsTab() {
                         {p.attending ? 'Yes' : 'No'}
                       </span>
                     </td>
-                    <td className="font-sans text-sage text-sm py-3 pr-4">{i === 0 ? rsvp.songRequest || '—' : ''}</td>
                     <td className="font-sans text-sage text-sm py-3 pr-4">{i === 0 ? rsvp.notes || '—' : ''}</td>
                     <td className="font-sans text-sage text-sm py-3 pr-4 whitespace-nowrap">{i === 0 ? rsvp.phone || '—' : ''}</td>
                     <td className="font-sans text-sage text-sm py-3 pr-4">

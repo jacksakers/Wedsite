@@ -37,7 +37,7 @@ export default function RSVP() {
   const [step, setStep] = useState(1)
   const [guest, setGuest] = useState(null)
   const [attendance, setAttendance] = useState([])
-  const [details, setDetails] = useState({ songRequest: '', notes: '', phone: '', addressLine1: '', addressCity: '', addressState: '', addressZip: '' })
+  const [details, setDetails] = useState({ notes: '', phone: '', addressLine1: '', addressCity: '', addressState: '', addressZip: '' })
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
 

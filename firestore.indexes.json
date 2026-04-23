@@ -94,6 +94,24 @@
         { "fieldPath": "recipientUid", "order": "ASCENDING" },
         { "fieldPath": "read",         "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "mixtape",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isDeleted", "order": "ASCENDING"  },
+        { "fieldPath": "score",     "order": "DESCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING"  }
+      ]
+    },
+    {
+      "collectionGroup": "mixtape",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "songTitleLower", "order": "ASCENDING" },
+        { "fieldPath": "artistLower",    "order": "ASCENDING" },
+        { "fieldPath": "isDeleted",      "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
