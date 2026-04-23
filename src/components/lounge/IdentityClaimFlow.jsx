@@ -77,6 +77,7 @@ export default function IdentityClaimFlow() {
               <p className="font-sans text-sage text-xs leading-relaxed">
                 Looks like you've already signed in on another device.
                 Tap below to link <strong>this</strong> device to your identity instead.
+                The previous device will be notified and will no longer have access to your personalized experience.
               </p>
             </div>
           )}

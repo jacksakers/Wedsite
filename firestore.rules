@@ -90,9 +90,15 @@ service cloud.firestore {
       allow create: if isAuthenticated()
                     && request.resource.data.authorUid == request.auth.uid
                     && request.resource.data.isDeleted == false;
+      // Post author / admin: full update.
+      // Any authenticated user: may only touch likes[] (like/unlike).
+      // Any authenticated user: may only touch commentCount + lastActivityAt
+      //   (written by the batch in addComment on behalf of the commenter).
       allow update: if isAuthenticated()
                     && (isAdmin()
-                        || request.auth.uid == resource.data.authorUid);
+                        || request.auth.uid == resource.data.authorUid
+                        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+                        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount', 'lastActivityAt']));
       allow delete: if isAdmin();
 
       // ─── /posts/{postId}/comments ─────────────────────────────────────────
@@ -101,9 +107,12 @@ service cloud.firestore {
         allow create: if isAuthenticated()
                       && request.resource.data.authorUid == request.auth.uid
                       && request.resource.data.isDeleted == false;
+        // Comment author / admin: full update.
+        // Any authenticated user: may only touch likes[] (like/unlike a comment).
         allow update: if isAuthenticated()
                       && (isAdmin()
-                          || request.auth.uid == resource.data.authorUid);
+                          || request.auth.uid == resource.data.authorUid
+                          || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']));
         allow delete: if isAdmin();
       }
     }

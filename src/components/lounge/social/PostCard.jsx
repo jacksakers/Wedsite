@@ -146,7 +146,7 @@ export default function PostCard({
       {isCouple && (
         <div className="bg-gradient-to-r from-sunrise-pink/20 via-sunrise-orange/10 to-sunrise-pink/20 px-4 py-1.5 border-b border-sunrise-pink/20 flex items-center gap-2">
           <span className="font-sans text-[9px] tracking-[0.3em] uppercase text-sunrise-orange/80">
-            ✨ A message from {post.authorRole === 'bride' ? 'The Bride' : 'The Groom'}
+            ~ A message from {post.authorRole === 'bride' ? 'The Bride' : 'The Groom'}
           </span>
         </div>
       )}

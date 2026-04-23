@@ -136,7 +136,7 @@ export default function MentionInput({
       {/* @mention dropdown */}
       {showMentionDrop && (
         <ul
-          className="absolute z-50 left-0 right-0 mt-1 bg-paper border border-sage/20 rounded-lg shadow-lg overflow-hidden"
+          className="absolute z-50 left-0 right-0 bottom-full mb-1 bg-paper border border-sage/20 rounded-lg shadow-lg overflow-hidden"
           onMouseDown={e => e.preventDefault()}
         >
           {filteredGuests.map(g => (
@@ -159,7 +159,7 @@ export default function MentionInput({
       {/* #hashtag dropdown */}
       {showHashDrop && (
         <div
-          className="absolute z-50 left-0 mt-1 bg-paper border border-sage/20 rounded-lg shadow-lg overflow-hidden flex flex-wrap gap-1.5 p-2"
+          className="absolute z-50 left-0 bottom-full mb-1 bg-paper border border-sage/20 rounded-lg shadow-lg overflow-hidden flex flex-wrap gap-1.5 p-2"
           onMouseDown={e => e.preventDefault()}
         >
           {filteredHash.map(tag => (

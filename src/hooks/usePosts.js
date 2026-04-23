@@ -152,7 +152,6 @@ export async function togglePostLike(postId, uid) {
   const alreadyLiked = (snap.data().likes ?? []).includes(uid)
   await updateDoc(postRef, {
     likes: alreadyLiked ? arrayRemove(uid) : arrayUnion(uid),
-    lastActivityAt: serverTimestamp(),
   })
   return { liked: !alreadyLiked, wasFirst: !alreadyLiked }
 }

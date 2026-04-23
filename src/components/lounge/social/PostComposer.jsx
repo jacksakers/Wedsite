@@ -167,8 +167,8 @@ export default function PostComposer({ guests, currentGuest, currentUser, isAdmi
           </button>
           <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
 
-          {/* Private toggle (admins only) */}
-          {isAdmin && (
+          {/* Private toggle (guests only) */}
+          {/* {!isAdmin && (
             <button
               type="button"
               onClick={() => setIsPrivate(p => !p)}
@@ -183,7 +183,7 @@ export default function PostComposer({ guests, currentGuest, currentUser, isAdmi
               </svg>
               {isPrivate ? 'Just the couple' : 'Private'}
             </button>
-          )}
+          )} */}
         </div>
 
         <div className="flex items-center gap-2">
