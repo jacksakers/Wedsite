@@ -26,6 +26,7 @@ export default function SocialSpace({ currentGuest, currentUser, isAdmin }) {
 
   const [allPosts, setAllPosts]         = useState([])
   const [loading, setLoading]           = useState(true)
+  const [feedError, setFeedError]       = useState('')
   const [sort, setSort]                 = useState('active')
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE)
   const [profiles, setProfiles]         = useState({}) // guestId -> profile
@@ -59,13 +60,20 @@ export default function SocialSpace({ currentGuest, currentUser, isAdmin }) {
   // Subscribe to posts
   useEffect(() => {
     setLoading(true)
+    setFeedError('')
     let unsub
+
+    const onErr = (err) => {
+      console.error('posts subscription error:', err)
+      setFeedError('Could not load posts. Please refresh.')
+      setLoading(false)
+    }
 
     if (filterTag) {
       unsub = subscribeToPostsByHashtag({
         hashtag: filterTag,
         onUpdate: (data) => { setAllPosts(data); setLoading(false) },
-        onError:  ()     => setLoading(false),
+        onError: onErr,
       })
     } else {
       const field = sort === 'recent' ? 'recent' : 'active'
@@ -73,7 +81,7 @@ export default function SocialSpace({ currentGuest, currentUser, isAdmin }) {
         sort: field,
         includePrivate: isAdmin,
         onUpdate: (data) => { setAllPosts(data); setLoading(false) },
-        onError:  ()     => setLoading(false),
+        onError: onErr,
       })
     }
 
@@ -230,7 +238,13 @@ export default function SocialSpace({ currentGuest, currentUser, isAdmin }) {
           </>
         )}
 
-        {!loading && sorted.length === 0 && (
+        {feedError && (
+          <div className="text-center py-8">
+            <p className="font-sans text-red-400 text-sm">{feedError}</p>
+          </div>
+        )}
+
+        {!loading && !feedError && sorted.length === 0 && (
           <div className="text-center py-16">
             <p className="font-serif text-palmetto text-2xl mb-2 text-pressed">
               {filterTag ? `No posts for #${filterTag}` : 'Be the first to share!'}
