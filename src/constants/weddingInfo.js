@@ -10,7 +10,7 @@ export const COUPLE_DISPLAY = `${PARTNER_ONE_FIRST_NICKNAME} & ${PARTNER_TWO_FIR
 export const COUPLE_FULL_DISPLAY = `${PARTNER_ONE_FIRST} ${PARTNER_ONE_MIDDLE} ${PARTNER_ONE_LAST} & ${PARTNER_TWO_FIRST} ${PARTNER_TWO_MIDDLE} ${PARTNER_TWO_LAST}`
 
 export const WEDDING_DATE = new Date('2027-03-13T15:00:00')
-export const WEDDING_TIME_DISPLAY = '3:00 PM'
+export const WEDDING_TIME_DISPLAY = '4:00 PM'
 
 export const VENUE_NAME = 'The River Road and Jasmine Houses and Gardens'
 export const VENUE_CITY = 'Irmo, SC'
