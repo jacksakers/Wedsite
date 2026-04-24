@@ -10,11 +10,13 @@ import CoupleEditProfilePanel from '../components/lounge/CoupleEditProfilePanel'
 import PolaroidWall from '../components/lounge/PolaroidWall'
 import SocialSpace from '../components/lounge/social/SocialSpace'
 import MixtapeSpace from '../components/lounge/mixtape/MixtapeSpace'
+import PhotoVault from '../components/lounge/PhotoVault'
 
 const TABS = [
   { value: 'wall',    label: "Who's Who" },
   { value: 'social',  label: 'The Gathering' },
   { value: 'mixtape', label: 'The Mixtape' },
+  { value: 'camera',  label: 'Camera' },
 ]
 
 export default function Lounge() {
@@ -134,7 +136,14 @@ export default function Lounge() {
           isAdmin={isAdmin || isCouple}
         />
       )}
-
+      {/* ── Photo Vault (Disposable Camera) ───────────────────────────── */}
+      {activeTab === 'camera' && (
+        <PhotoVault
+          currentGuest={linkedGuest}
+          currentUser={user}
+          isAdmin={isAdmin || isCouple}
+        />
+      )}
       {/* ── Who's Who wall ─────────────────────────────────────────────────── */}
       {activeTab === 'wall' && (
         <section className="py-10 px-6">

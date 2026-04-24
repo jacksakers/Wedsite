@@ -47,7 +47,12 @@ export default function MixtapeSpace({ currentGuest, currentUser, isAdmin }) {
   // Client-side sort and filter (server already sorts by score desc for 'top')
   const displaySongs = (() => {
     let list = [...songs]
-    if (vibeFilter) list = list.filter(s => s.vibe === vibeFilter)
+    if (vibeFilter) {
+      const knownStandardVibes = VIBE_OPTIONS.filter(v => v.value !== 'other').map(v => v.value)
+      list = vibeFilter === 'other'
+        ? list.filter(s => !knownStandardVibes.includes(s.vibe))
+        : list.filter(s => s.vibe === vibeFilter)
+    }
     if (sort === 'newest') {
       list.sort((a, b) => {
         const tA = a.createdAt?.toDate?.().getTime() ?? 0

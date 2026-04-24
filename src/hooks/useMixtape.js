@@ -241,6 +241,7 @@ export async function getTopSongs(n = 20) {
     collection(db, 'mixtape'),
     where('isDeleted', '==', false),
     orderBy('score', 'desc'),
+    orderBy('createdAt', 'asc'),
     limit(n),
   )
   const snap = await getDocs(q)

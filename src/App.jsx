@@ -21,40 +21,49 @@ import RSVP from './pages/RSVP'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminLogin from './pages/admin/AdminLogin'
 import Lounge from './pages/Lounge'
+import Slideshow from './pages/Slideshow'
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <GuestIdentityProvider>
-          <div className="min-h-svh flex flex-col bg-paper">
-          <ScrollToTop />
-          <Navbar />
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/story" element={<OurStory />} />
-            <Route path="/registry" element={<Registry />} />
-            <Route path="/gate" element={<GuestGate />} />
-            <Route
-              path="/information"
-              element={<ProtectedRoute><Information /></ProtectedRoute>}
-            />
-            <Route
-              path="/rsvp"
-              element={<ProtectedRoute><RSVP /></ProtectedRoute>}
-            />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin"
-              element={<AdminRoute><AdminDashboard /></AdminRoute>}
-            />
-            <Route
-              path="/lounge"
-              element={<ProtectedRoute><Lounge /></ProtectedRoute>}
-            />
+            {/* Slideshow is standalone — no shell */}
+            <Route path="/slideshow" element={<Slideshow />} />
+
+            {/* All other routes share the nav/footer shell */}
+            <Route path="*" element={
+              <div className="min-h-svh flex flex-col bg-paper">
+                <ScrollToTop />
+                <Navbar />
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/story" element={<OurStory />} />
+                  <Route path="/registry" element={<Registry />} />
+                  <Route path="/gate" element={<GuestGate />} />
+                  <Route
+                    path="/information"
+                    element={<ProtectedRoute><Information /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="/rsvp"
+                    element={<ProtectedRoute><RSVP /></ProtectedRoute>}
+                  />
+                  <Route path="/admin/login" element={<AdminLogin />} />
+                  <Route
+                    path="/admin"
+                    element={<AdminRoute><AdminDashboard /></AdminRoute>}
+                  />
+                  <Route
+                    path="/lounge"
+                    element={<ProtectedRoute><Lounge /></ProtectedRoute>}
+                  />
+                </Routes>
+                <Footer />
+              </div>
+            } />
           </Routes>
-          <Footer />
-          </div>
         </GuestIdentityProvider>
       </AuthProvider>
     </BrowserRouter>

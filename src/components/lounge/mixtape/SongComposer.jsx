@@ -35,7 +35,6 @@ export default function SongComposer({ currentGuest, currentUser, onSaved }) {
   const [searching,   setSearching]   = useState(false)
   const [selected,    setSelected]    = useState(null)       // { trackName, artistName, artworkUrl }
   const [vibe,        setVibe]        = useState('')
-  const [customVibe,  setCustomVibe]  = useState('')
   const [note,        setNote]        = useState('')
   const [saving,      setSaving]      = useState(false)
   const [feedback,    setFeedback]    = useState(null)       // { type, msg }
@@ -92,7 +91,7 @@ export default function SongComposer({ currentGuest, currentUser, onSaved }) {
     if (!songTitle || !artist) return
     setSaving(true)
     setFeedback(null)
-    const finalVibe = vibe === 'other' ? customVibe.trim() : vibe
+    const finalVibe = vibe
     try {
       const result = await addSong({
         songTitle,
@@ -115,7 +114,6 @@ export default function SongComposer({ currentGuest, currentUser, onSaved }) {
         setFeedback({ type: 'success', msg: '🎵 Added to the mixtape!' })
         handleClear()
         setVibe('')
-        setCustomVibe('')
         setNote('')
         onSaved?.()
       }
@@ -264,17 +262,6 @@ export default function SongComposer({ currentGuest, currentUser, onSaved }) {
           ))}
         </div>
       </div>
-
-      {vibe === 'other' && (
-        <input
-          type="text"
-          value={customVibe}
-          onChange={e => setCustomVibe(e.target.value)}
-          placeholder="Describe the vibe…"
-          className={INPUT_CLS}
-          autoComplete="off"
-        />
-      )}
 
       <textarea
         value={note}

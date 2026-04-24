@@ -39,6 +39,14 @@ export default function AdminDashboard() {
           <h1 className="font-serif text-paper text-2xl">Admin Dashboard</h1>
           <div className="flex items-center gap-3">
             <a
+              href="/slideshow"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-sans text-xs tracking-widest uppercase text-paper/70 border border-paper/30 rounded px-4 py-2 hover:text-paper hover:border-paper transition-colors"
+            >
+              Slideshow ↗
+            </a>
+            <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"

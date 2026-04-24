@@ -13,7 +13,7 @@ export default function ExportModal({ onClose }) {
   useEffect(() => {
     getTopSongs(20)
       .then(setSongs)
-      .catch(() => setSongs([]))
+      .catch(err => { console.error('[ExportModal] getTopSongs failed:', err); setSongs([]) })
       .finally(() => setLoading(false))
   }, [])
 
