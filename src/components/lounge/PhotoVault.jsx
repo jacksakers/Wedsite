@@ -203,7 +203,7 @@ export default function PhotoVault({ currentGuest, currentUser, isAdmin }) {
   const pendingUploads = uploads.filter(u => u.progress < 100 || u.error)
 
   return (
-    <section className="py-8 px-4 md:px-6 max-w-4xl mx-auto">
+    <section className="py-8 px-4 md:px-6 max-w-4xl mx-auto relative" style={{ zIndex: 110 }}>
 
       {/* ── Header ── */}
       <div className="text-center mb-8">
@@ -211,7 +211,7 @@ export default function PhotoVault({ currentGuest, currentUser, isAdmin }) {
           The Vault
         </p>
         <h2 className="font-serif text-palmetto text-4xl text-pressed mb-3">
-          Disposable Camera
+          Photo Upload
         </h2>
         <p className="font-sans text-sage text-sm leading-relaxed max-w-sm mx-auto">
           Upload your candid shots — they'll appear live on the{' '}

@@ -14,9 +14,9 @@ import PhotoVault from '../components/lounge/PhotoVault'
 
 const TABS = [
   { value: 'wall',    label: "Who's Who" },
-  { value: 'social',  label: 'The Gathering' },
-  { value: 'mixtape', label: 'The Mixtape' },
-  { value: 'camera',  label: 'Camera' },
+  { value: 'social',  label: 'Gathering' },
+  { value: 'mixtape', label: 'Mixtape' },
+  { value: 'photos',  label: 'Photos' },
 ]
 
 export default function Lounge() {
@@ -136,8 +136,8 @@ export default function Lounge() {
           isAdmin={isAdmin || isCouple}
         />
       )}
-      {/* ── Photo Vault (Disposable Camera) ───────────────────────────── */}
-      {activeTab === 'camera' && (
+      {/* ── Photo Vault (Photo Upload) ───────────────────────────── */}
+      {activeTab === 'photos' && (
         <PhotoVault
           currentGuest={linkedGuest}
           currentUser={user}

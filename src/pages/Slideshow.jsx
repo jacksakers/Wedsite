@@ -89,7 +89,7 @@ export default function Slideshow() {
       <div className="min-h-svh bg-black flex flex-col items-center justify-center gap-4">
         <p className="font-serif text-white/70 text-3xl">No photos yet</p>
         <p className="font-sans text-white/40 text-sm">
-          Guests can upload photos from the Lounge → Camera tab
+          Guests can upload photos from the Lounge → Photos tab
         </p>
       </div>
     )
@@ -97,7 +97,7 @@ export default function Slideshow() {
 
   // ── Slideshow ─────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-svh bg-black relative overflow-hidden select-none">
+    <div className="min-h-svh bg-black relative overflow-hidden select-none" style={{ zIndex: 110 }}>
 
       {/* Current photo */}
       {current && (
