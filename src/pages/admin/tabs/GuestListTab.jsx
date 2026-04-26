@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getAllGuests, addGuest, updateGuest, deleteGuest, resetGuestUid } from '../../../hooks/useGuests'
+import GuestImportExport from './GuestImportExport'
 
-const EMPTY_FORM = { party: [{ name: '' }] }
+const RSVP_OPTIONS = ['', 'Accepted', 'Declined', 'Pending']
+const EMPTY_FORM = { party: [{ name: '' }], address: '', phone: '', rsvpStatus: '', notes: '' }
 
 function PartyMemberInputs({ members, onChange }) {
   function updateMember(idx, val) {
@@ -54,11 +56,19 @@ function PartyMemberInputs({ members, onChange }) {
 function GuestFormModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(
     initial
-      ? { party: initial.party.map(p => ({ name: p.name })) }
+      ? {
+          party:      initial.party.map(p => ({ name: p.name })),
+          address:    initial.address    ?? '',
+          phone:      initial.phone      ?? '',
+          rsvpStatus: initial.rsvpStatus ?? '',
+          notes:      initial.notes      ?? '',
+        }
       : EMPTY_FORM
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+
+  function set(key, val) { setForm(f => ({ ...f, [key]: val })) }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -70,23 +80,63 @@ function GuestFormModal({ initial, onSave, onClose }) {
     setSaving(true)
     setError('')
     try {
-      await onSave({ name: primaryName, party })
+      await onSave({
+        name: primaryName,
+        party,
+        address:    form.address.trim(),
+        phone:      form.phone.trim(),
+        rsvpStatus: form.rsvpStatus.trim(),
+        notes:      form.notes.trim(),
+      })
     } catch {
       setError('Failed to save. Please try again.')
       setSaving(false)
     }
   }
 
+  const fieldClass = 'border border-sage/40 rounded px-3 py-2 font-sans text-palmetto bg-paper text-sm focus:outline-none focus:ring-2 focus:ring-sage/50 w-full'
+
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div className="bg-paper rounded-lg w-full max-w-md p-6 shadow-2xl">
+    <div className="fixed inset-0 bg-black/40 z-50 overflow-y-auto">
+      <div className="flex min-h-full items-start justify-center p-4">
+      <div className="bg-paper rounded-lg w-full max-w-md p-6 shadow-2xl my-16 sm:my-8">
         <h3 className="font-serif text-palmetto text-xl mb-4">
           {initial ? 'Edit Guest' : 'Add Guest'}
         </h3>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <PartyMemberInputs
             members={form.party}
-            onChange={party => setForm({ party })}
+            onChange={party => set('party', party)}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              value={form.address}
+              onChange={e => set('address', e.target.value)}
+              placeholder="Address"
+              className={fieldClass}
+            />
+            <input
+              value={form.phone}
+              onChange={e => set('phone', e.target.value)}
+              placeholder="Phone"
+              className={fieldClass}
+            />
+          </div>
+          <select
+            value={form.rsvpStatus}
+            onChange={e => set('rsvpStatus', e.target.value)}
+            className={fieldClass}
+          >
+            {RSVP_OPTIONS.map(o => (
+              <option key={o} value={o}>{o || '— RSVP status —'}</option>
+            ))}
+          </select>
+          <textarea
+            value={form.notes}
+            onChange={e => set('notes', e.target.value)}
+            placeholder="Notes (role, dietary needs, etc.)"
+            rows={2}
+            className={`${fieldClass} resize-none`}
           />
           {error && <p className="font-sans text-red-500 text-sm">{error}</p>}
           <div className="flex gap-3 justify-end mt-2">
@@ -107,6 +157,7 @@ function GuestFormModal({ initial, onSave, onClose }) {
           </div>
         </form>
       </div>
+      </div>
     </div>
   )
 }
@@ -119,6 +170,7 @@ export default function GuestListTab() {
   const [showAdd, setShowAdd] = useState(false)
   const [deleting, setDeleting] = useState(null)
   const [resetting, setResetting] = useState(null)
+  const [showImportExport, setShowImportExport] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -132,6 +184,8 @@ export default function GuestListTab() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  const handleImportComplete = useCallback(() => { load() }, [load])
 
   async function handleSave(data) {
     if (editGuest) {
@@ -177,12 +231,20 @@ export default function GuestListTab() {
             {guests.length} group{guests.length !== 1 ? 's' : ''} · {totalPeople} people invited
           </p>
         </div>
-        <button
-          onClick={() => { setEditGuest(null); setShowAdd(true) }}
-          className="bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-2 px-5 rounded hover:bg-palmetto/80 transition-colors"
-        >
-          + Add Guest
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowImportExport(true)}
+            className="font-sans text-xs tracking-[0.2em] uppercase py-2 px-4 rounded border border-sage/40 text-sage hover:text-palmetto hover:border-palmetto transition-colors"
+          >
+            Import / Export
+          </button>
+          <button
+            onClick={() => { setEditGuest(null); setShowAdd(true) }}
+            className="bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-2 px-5 rounded hover:bg-palmetto/80 transition-colors"
+          >
+            + Add Guest
+          </button>
+        </div>
       </div>
 
       {(showAdd || editGuest) && (
@@ -190,6 +252,14 @@ export default function GuestListTab() {
           initial={editGuest}
           onSave={handleSave}
           onClose={() => { setShowAdd(false); setEditGuest(null) }}
+        />
+      )}
+
+      {showImportExport && (
+        <GuestImportExport
+          guests={guests}
+          onImportComplete={handleImportComplete}
+          onClose={() => setShowImportExport(false)}
         />
       )}
 
@@ -207,12 +277,29 @@ export default function GuestListTab() {
               key={guest.id}
               className="border border-sage/20 rounded-lg px-5 py-4 flex items-start justify-between hover:bg-sage/5 transition-colors"
             >
-              <div>
-                <p className="font-serif text-palmetto">{guest.name}</p>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-serif text-palmetto">{guest.name}</p>
+                  {guest.rsvpStatus && (
+                    <span className={`font-sans text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                      guest.rsvpStatus === 'Accepted'  ? 'bg-palmetto/10 text-palmetto' :
+                      guest.rsvpStatus === 'Declined'  ? 'bg-red-100 text-red-400' :
+                      'bg-sage/10 text-sage'
+                    }`}>{guest.rsvpStatus}</span>
+                  )}
+                </div>
                 {guest.party?.length > 1 && (
                   <p className="font-sans text-sage text-xs mt-0.5">
                     + {guest.party.slice(1).map(p => p.name).join(', ')}
                   </p>
+                )}
+                {(guest.address || guest.phone) && (
+                  <p className="font-sans text-sage/60 text-xs mt-0.5 truncate">
+                    {[guest.address, guest.phone].filter(Boolean).join(' · ')}
+                  </p>
+                )}
+                {guest.notes && (
+                  <p className="font-sans text-sage/50 text-xs mt-0.5 italic truncate">{guest.notes}</p>
                 )}
                 <div className="flex items-center gap-3 mt-1">
                   <p className="font-sans text-sage/50 text-xs">

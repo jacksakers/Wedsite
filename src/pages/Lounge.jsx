@@ -101,13 +101,13 @@ export default function Lounge() {
         )}
 
         {/* ── Subtabs ── */}
-        <div className="flex items-center justify-center gap-1 mt-8">
+        <div className="flex items-center gap-1 mt-8 overflow-x-auto px-4 pb-1 justify-start sm:justify-center no-scrollbar">
           {TABS.map(tab => (
             <button
               key={tab.value}
               type="button"
               onClick={() => setTab(tab.value)}
-              className={`px-5 py-2 rounded-full font-sans text-xs tracking-[0.15em] uppercase transition-all ${
+              className={`flex-shrink-0 px-4 sm:px-5 py-2 rounded-full font-sans text-xs tracking-[0.15em] uppercase transition-all ${
                 activeTab === tab.value
                   ? 'bg-paper text-palmetto'
                   : 'text-paper/60 hover:text-paper'
