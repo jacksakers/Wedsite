@@ -179,7 +179,7 @@ export default function GuestImportExport({ guests, onImportComplete, onClose })
   const selectedCount = preview?.filter(r => r.include).length                  ?? 0
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 z-50 overflow-y-auto mt-16">
       <div className="flex min-h-full items-start justify-center p-4">
       <div className="bg-paper rounded-lg w-full max-w-2xl my-16 sm:my-8 shadow-2xl">
 

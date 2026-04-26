@@ -97,7 +97,7 @@ function GuestFormModal({ initial, onSave, onClose }) {
   const fieldClass = 'border border-sage/40 rounded px-3 py-2 font-sans text-palmetto bg-paper text-sm focus:outline-none focus:ring-2 focus:ring-sage/50 w-full'
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/40 z-50 overflow-y-auto mt-16">
       <div className="flex min-h-full items-start justify-center p-4">
       <div className="bg-paper rounded-lg w-full max-w-md p-6 shadow-2xl my-16 sm:my-8">
         <h3 className="font-serif text-palmetto text-xl mb-4">
