@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import heic2any from 'heic2any'
 import { saveGuestProfile, getGuestProfile, FUN_FACT_PROMPTS } from '../../hooks/useGuestProfiles'
 
 const INPUT_CLS = 'w-full border border-sage/40 rounded px-4 py-3 font-sans text-palmetto bg-paper text-sm focus:outline-none focus:ring-2 focus:ring-sage/50'
@@ -16,6 +17,7 @@ export default function EditProfilePanel({ guest, onSaved }) {
   const [selfiePreview, setSelfiePreview] = useState(null)
   const [uploadPct, setUploadPct] = useState(null)
   const [saving, setSaving]       = useState(false)
+  const [processingImage, setProcessingImage] = useState(false) // Added for HEIC processing
   const [error, setError]         = useState('')
   const fileRef = useRef(null)
 
@@ -45,11 +47,40 @@ export default function EditProfilePanel({ guest, onSaved }) {
     setMode('edit')
   }
 
-  function handleFileChange(e) {
+  async function handleFileChange(e) {
     const file = e.target.files?.[0]
     if (!file) return
-    setSelfieFile(file)
-    setSelfiePreview(URL.createObjectURL(file))
+
+    const isHeic = file.name.toLowerCase().match(/\.hei[cf]$/) || file.type.includes('heic') || file.type.includes('heif')
+
+    if (isHeic) {
+      setProcessingImage(true)
+      setError('')
+      try {
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.8,
+        })
+        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob
+        const newName = file.name.replace(/\.hei[cf]$/i, '.jpg')
+        const convertedFile = new File([blob], newName, { type: 'image/jpeg' })
+
+        setSelfieFile(convertedFile)
+        setSelfiePreview(URL.createObjectURL(convertedFile))
+      } catch (err) {
+        console.error("HEIC conversion failed:", err)
+        setError('Failed to process image. Please try a different photo.')
+      } finally {
+        setProcessingImage(false)
+        // Reset the input so the same file can be selected again if needed
+        if (fileRef.current) fileRef.current.value = ''
+      }
+    } else {
+      setSelfieFile(file)
+      setSelfiePreview(URL.createObjectURL(file))
+      if (fileRef.current) fileRef.current.value = ''
+    }
   }
 
   async function handleSave() {
@@ -141,32 +172,40 @@ export default function EditProfilePanel({ guest, onSaved }) {
           {/* Preview */}
           <button
             type="button"
-            onClick={() => fileRef.current?.click()}
-            className="shrink-0 bg-sage/10 overflow-hidden hover:bg-sage/20 transition-colors group relative"
+            onClick={() => !processingImage && fileRef.current?.click()}
+            disabled={processingImage}
+            className={`shrink-0 bg-sage/10 overflow-hidden hover:bg-sage/20 transition-colors group relative ${processingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{ width: 90, height: 90, borderRadius: 4, boxShadow: '0 2px 6px rgba(0,0,0,0.18)' }}
             aria-label="Upload selfie"
           >
-            {previewSrc
-              ? <img src={previewSrc} alt="Your selfie" className="w-full h-full object-cover" />
-              : <div className="w-full h-full flex items-center justify-center flex-col gap-1">
-                  <span className="font-serif text-sage/40 text-3xl">+</span>
-                </div>
-            }
-            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <span className="font-sans text-paper text-[10px] tracking-widest uppercase">change</span>
-            </div>
+            {processingImage ? (
+              <div className="w-full h-full flex items-center justify-center flex-col gap-1">
+                <span className="font-sans text-sage/60 text-[10px] uppercase">Processing...</span>
+              </div>
+            ) : previewSrc ? (
+              <img src={previewSrc} alt="Your selfie" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center flex-col gap-1">
+                <span className="font-serif text-sage/40 text-3xl">+</span>
+              </div>
+            )}
+            {!processingImage && (
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="font-sans text-paper text-[10px] tracking-widest uppercase">change</span>
+              </div>
+            )}
           </button>
 
           <div>
             <p className="font-sans text-palmetto text-sm mb-1">
-              {previewSrc ? 'Looking good!' : 'Add a selfie'}
+              {processingImage ? 'Converting image...' : previewSrc ? 'Looking good!' : 'Add a selfie'}
             </p>
             <p className="font-sans text-sage text-xs leading-relaxed">
               {previewSrc
                 ? 'Click your photo to pick a different one.'
                 : 'This is optional, but guests love putting a face to a name.'}
             </p>
-            {!previewSrc && (
+            {!previewSrc && !processingImage && (
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
@@ -180,8 +219,9 @@ export default function EditProfilePanel({ guest, onSaved }) {
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           className="hidden"
+          disabled={processingImage}
           onChange={handleFileChange}
         />
       </div>
@@ -240,7 +280,8 @@ export default function EditProfilePanel({ guest, onSaved }) {
           <button
             type="button"
             onClick={() => setMode('view')}
-            className="font-sans text-xs tracking-[0.2em] uppercase text-sage hover:text-palmetto transition-colors px-4 py-2"
+            disabled={processingImage || saving}
+            className="font-sans text-xs tracking-[0.2em] uppercase text-sage hover:text-palmetto transition-colors px-4 py-2 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -248,11 +289,13 @@ export default function EditProfilePanel({ guest, onSaved }) {
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving || !funFactText.trim()}
+          disabled={saving || processingImage || !funFactText.trim()}
           className="flex-1 bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-3 px-6 rounded hover:bg-palmetto/80 transition-colors disabled:opacity-50"
         >
           {saving
             ? (uploadPct !== null ? `Uploading… ${uploadPct}%` : 'Saving…')
+            : processingImage
+            ? 'Processing Photo...'
             : (profile ? 'Save changes' : 'Add to the wall →')
           }
         </button>

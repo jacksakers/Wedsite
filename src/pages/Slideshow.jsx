@@ -128,7 +128,7 @@ export default function Slideshow() {
           <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
             <div className="flex items-center gap-2">
               <span className="font-sans text-white/90 text-sm tracking-wide drop-shadow">
-                📷 {firstName}
+                {firstName}
               </span>
             </div>
             {/* Dot indicator */}
