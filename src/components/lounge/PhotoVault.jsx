@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import heic2any from 'heic2any'
 import {
   uploadVaultPhoto,
   getVaultPhotoPage,
@@ -133,7 +134,10 @@ export default function PhotoVault({ currentGuest, currentUser, isAdmin }) {
   }
 
   async function handleFiles(files) {
-    const list = Array.from(files).filter(f => f.type.startsWith('image/'))
+    // Check for images OR explicitly check for HEIC/HEIF extensions as some browsers don't assign them an image/ MIME type
+    const list = Array.from(files).filter(
+      f => f.type.startsWith('image/') || f.name.toLowerCase().match(/\.hei[cf]$/)
+    )
     if (!list.length) return
 
     const uploaderName    = currentGuest?.name ?? 'Guest'
@@ -145,40 +149,69 @@ export default function PhotoVault({ currentGuest, currentUser, isAdmin }) {
     setUploads(prev => [...trackers, ...prev])
 
     await Promise.allSettled(
-      list.map((file, i) =>
-        uploadVaultPhoto(
-          file,
-          { uploaderName, uploaderUid, uploaderGuestId },
-          pct => setUploads(prev => {
+      list.map(async (file, i) => {
+        try {
+          let fileToUpload = file;
+          const isHeic = file.name.toLowerCase().match(/\.hei[cf]$/) || file.type.includes('heic') || file.type.includes('heif');
+
+          if (isHeic) {
+            // Give immediate feedback that we are processing
+            setUploads(prev => {
+              const next = [...prev];
+              // Use a small progress bump to indicate it's working/converting
+              next[i] = { ...next[i], progress: 5 }; 
+              return next;
+            });
+
+            const convertedBlob = await heic2any({
+              blob: file,
+              toType: 'image/jpeg',
+              quality: 0.8, // Adjust quality as needed to save space
+            });
+
+            // heic2any returns an array of blobs if it's an animation, so we grab the first frame
+            const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+            const newName = file.name.replace(/\.hei[cf]$/i, '.jpg');
+            
+            fileToUpload = new File([blob], newName, { type: 'image/jpeg' });
+          }
+
+          const { id, url } = await uploadVaultPhoto(
+            fileToUpload,
+            { uploaderName, uploaderUid, uploaderGuestId },
+            pct => setUploads(prev => {
+              const next = [...prev]
+              // If we bumped it to 5% for conversion, scale the rest or just use pct
+              next[i] = { ...next[i], progress: Math.max(next[i].progress, pct) }
+              return next
+            })
+          );
+
+          setUploads(prev => {
             const next = [...prev]
-            next[i] = { ...next[i], progress: pct }
+            next[i] = { ...next[i], progress: 100 }
             return next
-          }),
-        )
-          .then(({ id, url }) => {
-            setUploads(prev => {
-              const next = [...prev]
-              next[i] = { ...next[i], progress: 100 }
-              return next
-            })
-            // Prepend the new photo to the top of the grid
-            setPhotos(prev => [{
-              id,
-              url,
-              storagePath: `vaultPhotos/${id}`,
-              uploaderName,
-              uploaderUid,
-              uploaderGuestId,
-            }, ...prev])
-          })
-          .catch(() => {
-            setUploads(prev => {
-              const next = [...prev]
-              next[i] = { ...next[i], error: 'Upload failed' }
-              return next
-            })
-          }),
-      ),
+          });
+
+          // Prepend the new photo to the top of the grid
+          setPhotos(prev => [{
+            id,
+            url,
+            storagePath: `vaultPhotos/${id}`,
+            uploaderName,
+            uploaderUid,
+            uploaderGuestId,
+          }, ...prev]);
+
+        } catch (error) {
+          console.error("Upload error: ", error);
+          setUploads(prev => {
+            const next = [...prev]
+            next[i] = { ...next[i], error: 'Upload failed' }
+            return next
+          });
+        }
+      })
     )
 
     // Clear completed uploads after a delay
@@ -249,7 +282,7 @@ export default function PhotoVault({ currentGuest, currentUser, isAdmin }) {
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           multiple
           className="hidden"
           onChange={e => { handleFiles(e.target.files); e.target.value = '' }}
