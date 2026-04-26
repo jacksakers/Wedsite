@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import heic2any from 'heic2any'
 import { saveGuestProfile, getGuestProfile } from '../../hooks/useGuestProfiles'
 
 const TEXTAREA_CLS = 'w-full border border-sunrise-pink/30 rounded px-4 py-3 font-sans text-palmetto bg-paper text-sm focus:outline-none focus:ring-2 focus:ring-sunrise-pink/40 resize-none'
@@ -15,6 +16,7 @@ export default function CoupleEditProfilePanel({ guest, onSaved }) {
   const [selfiePreview, setSelfiePreview] = useState(null)
   const [uploadPct, setUploadPct] = useState(null)
   const [saving, setSaving]       = useState(false)
+  const [processingImage, setProcessingImage] = useState(false)
   const [error, setError]         = useState('')
   const fileRef = useRef(null)
 
@@ -37,11 +39,43 @@ export default function CoupleEditProfilePanel({ guest, onSaved }) {
     setMode('edit')
   }
 
-  function handleFileChange(e) {
+  async function handleFileChange(e) {
     const file = e.target.files?.[0]
     if (!file) return
-    setSelfieFile(file)
-    setSelfiePreview(URL.createObjectURL(file))
+
+    const isHeic = file.name.toLowerCase().match(/\.hei[cf]$/) || file.type?.includes('heic') || file.type?.includes('heif')
+
+    if (isHeic) {
+      setProcessingImage(true)
+      setError('')
+      
+      // Force React to render the "Processing..." state before heavy conversion locks the thread
+      await new Promise(resolve => setTimeout(resolve, 50))
+      
+      try {
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.8,
+        })
+        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob
+        const newName = file.name.replace(/\.hei[cf]$/i, '.jpg')
+        const convertedFile = new File([blob], newName, { type: 'image/jpeg' })
+
+        setSelfieFile(convertedFile)
+        setSelfiePreview(URL.createObjectURL(convertedFile))
+      } catch (err) {
+        console.error("HEIC conversion failed:", err)
+        setError('Failed to process image. Please try a different photo.')
+      } finally {
+        setProcessingImage(false)
+        if (fileRef.current) fileRef.current.value = ''
+      }
+    } else {
+      setSelfieFile(file)
+      setSelfiePreview(URL.createObjectURL(file))
+      if (fileRef.current) fileRef.current.value = ''
+    }
   }
 
   async function handleSave() {
@@ -138,27 +172,37 @@ export default function CoupleEditProfilePanel({ guest, onSaved }) {
         <div className="flex items-center gap-5">
           <button
             type="button"
-            onClick={() => fileRef.current?.click()}
-            className="shrink-0 overflow-hidden hover:opacity-90 transition-opacity group relative"
+            onClick={() => !processingImage && fileRef.current?.click()}
+            disabled={processingImage}
+            className={`shrink-0 overflow-hidden hover:opacity-90 transition-opacity group relative ${processingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{ width: 90, height: 90, borderRadius: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.28)', background: '#5c7543' }}
             aria-label="Upload photo"
           >
-            {previewSrc
-              ? <img src={previewSrc} alt="Your photo" className="w-full h-full object-cover" />
-              : <div className="w-full h-full flex items-center justify-center">
-                  <span className="font-serif text-sunrise-pink/60 text-3xl">+</span>
-                </div>
-            }
-            <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <span className="font-sans text-paper text-[10px] tracking-widest uppercase">change</span>
-            </div>
+            {processingImage ? (
+              <div className="w-full h-full flex items-center justify-center flex-col gap-1">
+                <span className="font-sans text-white/80 text-[10px] uppercase">Processing...</span>
+              </div>
+            ) : previewSrc ? (
+              <img src={previewSrc} alt="Your photo" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="font-serif text-sunrise-pink/60 text-3xl">+</span>
+              </div>
+            )}
+            {!processingImage && (
+              <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="font-sans text-paper text-[10px] tracking-widest uppercase">change</span>
+              </div>
+            )}
           </button>
           <div>
-            <p className="font-sans text-palmetto text-sm mb-1">{previewSrc ? 'Looking wonderful!' : 'Add your photo'}</p>
+            <p className="font-sans text-palmetto text-sm mb-1">
+              {processingImage ? 'Converting image...' : previewSrc ? 'Looking wonderful!' : 'Add your photo'}
+            </p>
             <p className="font-sans text-sage text-xs leading-relaxed">
               {previewSrc ? 'Click to choose a different one.' : 'This will appear on your special polaroid.'}
             </p>
-            {!previewSrc && (
+            {!previewSrc && !processingImage && (
               <button type="button" onClick={() => fileRef.current?.click()}
                 className="font-sans text-sage text-xs underline underline-offset-2 hover:text-palmetto transition-colors mt-2">
                 Choose photo
@@ -166,7 +210,14 @@ export default function CoupleEditProfilePanel({ guest, onSaved }) {
             )}
           </div>
         </div>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+        <input 
+          ref={fileRef} 
+          type="file" 
+          accept="image/*,.heic,.heif" 
+          className="hidden" 
+          disabled={processingImage}
+          onChange={handleFileChange} 
+        />
       </div>
 
       {/* Note */}
@@ -196,19 +247,21 @@ export default function CoupleEditProfilePanel({ guest, onSaved }) {
 
       <div className="flex gap-3">
         {profile && (
-          <button type="button" onClick={() => setMode('view')}
-            className="font-sans text-xs tracking-[0.2em] uppercase text-sage hover:text-palmetto transition-colors px-4 py-2">
+          <button type="button" onClick={() => setMode('view')} disabled={processingImage || saving}
+            className="font-sans text-xs tracking-[0.2em] uppercase text-sage hover:text-palmetto transition-colors px-4 py-2 disabled:opacity-50">
             Cancel
           </button>
         )}
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || processingImage}
           className="flex-1 bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-3 px-6 rounded hover:bg-palmetto/80 transition-colors disabled:opacity-50"
         >
           {saving
             ? (uploadPct !== null ? `Uploading… ${uploadPct}%` : 'Saving…')
+            : processingImage
+            ? 'Processing Photo...'
             : (profile ? 'Save changes' : 'Add to the wall →')
           }
         </button>
