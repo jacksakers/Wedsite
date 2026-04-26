@@ -11,13 +11,13 @@ export default function EditProfilePanel({ guest, onSaved }) {
 
   const [mode, setMode]           = useState('loading') // 'loading' | 'view' | 'edit'
   const [profile, setProfile]     = useState(null)
-  const [promptKey, setPromptKey] = useState(FUN_FACT_PROMPTS[0].key)
+  const [promptKey, setPromptKey] = useState(null) // Changed default to null
   const [funFactText, setFunFactText] = useState('')
   const [selfieFile, setSelfieFile]   = useState(null)
   const [selfiePreview, setSelfiePreview] = useState(null)
   const [uploadPct, setUploadPct] = useState(null)
   const [saving, setSaving]       = useState(false)
-  const [processingImage, setProcessingImage] = useState(false) // Added for HEIC processing
+  const [processingImage, setProcessingImage] = useState(false)
   const [error, setError]         = useState('')
   const fileRef = useRef(null)
 
@@ -28,7 +28,7 @@ export default function EditProfilePanel({ guest, onSaved }) {
       .then(p => {
         setProfile(p)
         if (p) {
-          setPromptKey(p.promptKey ?? FUN_FACT_PROMPTS[0].key)
+          setPromptKey(p.promptKey ?? null)
           setFunFactText(p.funFactText ?? '')
         }
         setMode(p ? 'view' : 'edit')
@@ -38,7 +38,7 @@ export default function EditProfilePanel({ guest, onSaved }) {
 
   function openEdit() {
     if (profile) {
-      setPromptKey(profile.promptKey ?? FUN_FACT_PROMPTS[0].key)
+      setPromptKey(profile.promptKey ?? null)
       setFunFactText(profile.funFactText ?? '')
     }
     setSelfieFile(null)
@@ -56,6 +56,10 @@ export default function EditProfilePanel({ guest, onSaved }) {
     if (isHeic) {
       setProcessingImage(true)
       setError('')
+      
+      // Give React a moment to render the "Processing..." UI
+      await new Promise(resolve => setTimeout(resolve, 50))
+      
       try {
         const convertedBlob = await heic2any({
           blob: file,
@@ -73,7 +77,6 @@ export default function EditProfilePanel({ guest, onSaved }) {
         setError('Failed to process image. Please try a different photo.')
       } finally {
         setProcessingImage(false)
-        // Reset the input so the same file can be selected again if needed
         if (fileRef.current) fileRef.current.value = ''
       }
     } else {
@@ -84,7 +87,6 @@ export default function EditProfilePanel({ guest, onSaved }) {
   }
 
   async function handleSave() {
-    if (!funFactText.trim()) { setError('Please write something about yourself.'); return }
     setError('')
     setSaving(true)
     try {
@@ -146,9 +148,11 @@ export default function EditProfilePanel({ guest, onSaved }) {
 
         {/* Fun fact preview */}
         <div className="flex-1 min-w-0">
-          <p className="font-sans text-sage/60 text-[10px] tracking-[0.2em] uppercase mb-1">{viewPrompt}</p>
+          {viewPrompt && (
+            <p className="font-sans text-sage/60 text-[10px] tracking-[0.2em] uppercase mb-1">{viewPrompt}</p>
+          )}
           <p className="font-serif text-palmetto text-sm leading-snug text-pressed line-clamp-3">
-            {profile.funFactText}
+            {profile.funFactText || <span className="text-sage/40 italic">No note added.</span>}
           </p>
           <button
             onClick={openEdit}
@@ -230,6 +234,19 @@ export default function EditProfilePanel({ guest, onSaved }) {
       <div>
         <p className="font-sans text-sage/70 text-[10px] tracking-[0.2em] uppercase mb-3">Choose a prompt</p>
         <div className="flex flex-wrap gap-2">
+          {/* Added No Prompt option */}
+          <button
+            type="button"
+            onClick={() => setPromptKey(null)}
+            className={`px-3 py-1.5 rounded font-sans text-xs tracking-[0.1em] border transition-colors ${
+              promptKey === null
+                ? 'bg-palmetto text-paper border-palmetto'
+                : 'bg-paper text-sage border-sage/40 hover:border-sage'
+            }`}
+          >
+            No Prompt
+          </button>
+          
           {FUN_FACT_PROMPTS.map(p => (
             <button
               key={p.key}
@@ -250,12 +267,12 @@ export default function EditProfilePanel({ guest, onSaved }) {
       {/* Fun fact text */}
       <div>
         <p className="font-sans text-sage/70 text-[10px] tracking-[0.2em] uppercase mb-2">
-          {currentPrompt?.label ?? 'Your answer'}
+          {currentPrompt?.label ?? 'Leave a note (optional)'}
         </p>
         <textarea
           value={funFactText}
           onChange={e => setFunFactText(e.target.value)}
-          placeholder={currentPrompt?.placeholder ?? 'Write something…'}
+          placeholder={currentPrompt?.placeholder ?? 'Leave a fun fact, a memory, or just say hi…'}
           rows={4}
           className={TEXTAREA_CLS}
         />
@@ -289,7 +306,7 @@ export default function EditProfilePanel({ guest, onSaved }) {
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving || processingImage || !funFactText.trim()}
+          disabled={saving || processingImage}
           className="flex-1 bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-3 px-6 rounded hover:bg-palmetto/80 transition-colors disabled:opacity-50"
         >
           {saving

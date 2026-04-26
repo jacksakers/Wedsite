@@ -14,11 +14,10 @@ import { db, storage } from '../firebase'
 
 export const FUN_FACT_PROMPTS = [
   { key: 'know_couple',  label: 'How I know the couple',          placeholder: 'We met at…' },
-  { key: 'karaoke',      label: 'My go-to karaoke song',          placeholder: 'Something classic, obviously…' },
   { key: 'find_me',      label: 'You can always find me…',        placeholder: 'At the nearest coffee shop…' },
-  { key: 'hot_take',     label: 'My spiciest hot take',           placeholder: "Don't @ me, but…" },
   { key: 'bucket_list',  label: 'One thing on my bucket list',    placeholder: 'Someday I will…' },
   { key: 'advice',       label: 'My advice for the happy couple', placeholder: 'The secret to a happy marriage is…' },
+  { key: 'other',        label: 'A fun fact about me',            placeholder: 'I once…' },
 ]
 
 /** Returns a single guest profile document, or null if not found. */

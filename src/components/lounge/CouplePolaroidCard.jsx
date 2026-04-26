@@ -4,6 +4,13 @@ const CARD_WIDTH   = 230
 const PHOTO_HEIGHT = 260
 const CAPTION_PAD  = 52
 
+const TAPE_ROTATE_OPTIONS = ['-4deg', '3deg', '-2deg', '5deg', '-6deg']
+function getTapeRotate(id = '') {
+  let h = 0
+  for (let i = 0; i < id.length; i++) h = id.charCodeAt(i) + ((h << 3) - h)
+  return TAPE_ROTATE_OPTIONS[Math.abs(h) % TAPE_ROTATE_OPTIONS.length]
+}
+
 /** Couple cards lean toward each other — bride tilts right, groom tilts left. */
 function getCoupleRotation(role) {
   return role === 'bride' ? '2.5deg' : '-2.5deg'
@@ -15,7 +22,8 @@ export default function CouplePolaroidCard({ profile, isOwn = false, onEdit }) {
   const rotate    = getCoupleRotation(profile.coupleRole)
   const roleLabel = profile.coupleRole === 'bride' ? '♡ The Bride ♡' : '♡ The Groom ♡'
   const firstName = profile.guestName?.split(' ')[0] ?? profile.guestName ?? '?'
-  const totalHeight = PHOTO_HEIGHT + CAPTION_PAD + 12
+  const totalHeight = 28 + PHOTO_HEIGHT + CAPTION_PAD + 60
+  const tapeRot  = getTapeRotate(profile.id)
 
   return (
     <div
@@ -39,6 +47,22 @@ export default function CouplePolaroidCard({ profile, isOwn = false, onEdit }) {
 
         {/* ── FRONT ── */}
         <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+          {/* Tape */}
+          <div
+            style={{
+              position: 'absolute',
+              top: -15,
+              left: '50%',
+              width: '60px',
+              height: '22px',
+              borderRadius: '2px',
+              background: 'rgba(253, 230, 185, 0.60)',
+              transform: `translateX(-50%) rotate(${tapeRot})`,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+              zIndex: 2,
+            }}
+          />
+          
           {/* Palmetto-green polaroid frame */}
           <div
             style={{
@@ -119,6 +143,21 @@ export default function CouplePolaroidCard({ profile, isOwn = false, onEdit }) {
           backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
           transform: 'rotateY(180deg)',
         }}>
+          {/* Back tape */}
+          <div
+            style={{
+              position: 'absolute',
+              top: -15,
+              left: '50%',
+              width: '60px',
+              height: '22px',
+              borderRadius: '2px',
+              background: 'rgba(253, 230, 185, 0.60)',
+              transform: `translateX(-50%) rotate(${tapeRot})`,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+              zIndex: 2,
+            }}
+          />
           <div
             style={{
               position: 'absolute',
