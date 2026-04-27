@@ -46,7 +46,7 @@ export default function OurStory() {
       {/* Intro */}
       <section className="py-16 px-6 max-w-2xl mx-auto text-center">
         <p className="font-serif text-sage text-xl italic leading-relaxed">
-          It started with coffee on a rainy afternoon and somehow never stopped.
+          It started with coffee on a rainy afternoon and never stopped.
           Here, in chronological order, is how two people became us.
         </p>
       </section>
