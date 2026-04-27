@@ -107,7 +107,7 @@ export default function OurStory() {
               </h3>
               <p className="font-sans text-sage text-sm leading-relaxed">
                 The next chapter begins on what will be their four-year anniversary.
-                You're already here — and we can't wait to celebrate with you.
+                They can't wait to celebrate with you and include all their loved ones in the joy.
               </p>
             </div>
           </div>

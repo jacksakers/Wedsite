@@ -54,7 +54,7 @@ export default function Home() {
     <main>
       {/* Hero */}
       <section className="relative flex flex-col items-center justify-center 
-                            bg-palmetto text-center px-6 py-24 overflow-hidden velvet-surface">
+                            bg-palmetto text-center px-6 py-16 overflow-hidden velvet-surface">
         {/*
           Replace the div below with an <img> of your engagement photo once available.
           e.g. <img src="/engagement.jpg" className="absolute inset-0 w-full h-full object-cover opacity-30" alt="" />
