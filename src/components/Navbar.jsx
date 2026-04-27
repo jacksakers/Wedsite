@@ -44,7 +44,7 @@ export default function Navbar() {
           <NotificationBell />
           <button
             className="p-2 flex flex-col justify-center gap-[5px]"
-          onClick={() => setIsOpen(prev => !prev)}
+            onClick={() => setIsOpen(prev => !prev)}
             aria-expanded={isOpen}
             aria-label="Toggle navigation menu"
           >
