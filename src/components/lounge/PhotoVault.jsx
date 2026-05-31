@@ -6,6 +6,7 @@ import {
   deleteVaultPhoto,
   VAULT_PAGE_SIZE,
 } from '../../hooks/useVaultPhotos'
+import { Link } from 'react-router-dom'
 
 const GOOGLE_PHOTOS_URL = import.meta.env.VITE_GOOGLE_PHOTOS_URL ?? '#'
 
@@ -248,7 +249,7 @@ export default function PhotoVault({ currentGuest, currentUser, isAdmin }) {
         </h2>
         <p className="font-sans text-sage text-sm leading-relaxed max-w-sm mx-auto">
           Upload your candid shots — they'll appear live on the{' '}
-          <span className="text-palmetto font-medium">reception slideshow</span>!
+          <Link to="/slideshow" className="text-palmetto font-medium">reception slideshow</Link>!
         </p>
       </div>
 
