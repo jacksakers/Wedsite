@@ -89,7 +89,7 @@ export default function PostComposer({ guests, currentGuest, currentUser, isAdmi
           {
             content: text.trim(),
             authorUid: currentUser.uid,
-            authorGuestId: currentGuest.isCouple ? null : currentGuest.id,
+            authorGuestId: currentGuest.id,
             authorName: currentGuest.name,
             authorRole: currentGuest.isCouple ? currentGuest.role : 'guest',
             isPrivate,

@@ -195,8 +195,11 @@ export default function SocialSpace({ currentGuest, currentUser, isAdmin }) {
             onClick={() => setComposerOpen(true)}
             className="w-full text-left flex items-center gap-3 group"
           >
-            <div className="w-9 h-9 rounded-full bg-sage/20 shrink-0 flex items-center justify-center font-serif text-sage text-base border border-sage/15">
-              {currentGuest.name?.[0] ?? '?'}
+            <div className="w-9 h-9 rounded-full bg-sage/20 shrink-0 overflow-hidden flex items-center justify-center font-serif text-sage text-base border border-sage/15">
+              {profiles[currentGuest.id]?.selfieUrl
+                ? <img src={profiles[currentGuest.id].selfieUrl} alt="" className="w-full h-full object-cover" />
+                : (currentGuest.name?.[0] ?? '?')
+              }
             </div>
             <span className="font-sans text-sage/60 text-sm group-hover:text-sage transition-colors">
               Share something with the group…

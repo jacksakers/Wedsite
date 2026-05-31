@@ -81,9 +81,6 @@ export default function Information() {
             </a>
           ))}
         </div>
-        <p className="font-sans text-sage text-sm text-center italic">
-          We also recommend checking Airbnb for charming options in the Irmo / Lake Murray area.
-        </p>
       </section>
 
       <div className="border-t border-sage/20 max-w-3xl mx-auto" />
