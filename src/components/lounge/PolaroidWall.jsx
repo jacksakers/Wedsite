@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getAllGuestProfiles } from '../../hooks/useGuestProfiles'
-import GuestPolaroidCard from './GuestPolaroidCard'
-import CouplePolaroidCard from './CouplePolaroidCard'
+import PolaroidCard from './PolaroidCard'
 
 export default function PolaroidWall({ currentGuestId, onEditProfile }) {
   const [profiles, setProfiles]   = useState([])
@@ -66,7 +65,7 @@ export default function PolaroidWall({ currentGuestId, onEditProfile }) {
           </div>
           <div className="flex flex-wrap justify-center" style={{ gap: '2rem 3rem' }}>
             {sortedCouple.map(profile => (
-              <CouplePolaroidCard
+              <PolaroidCard
                 key={profile.id}
                 profile={profile}
                 isOwn={profile.id === currentGuestId}
@@ -89,7 +88,7 @@ export default function PolaroidWall({ currentGuestId, onEditProfile }) {
           )}
           <div className="flex flex-wrap justify-center" style={{ gap: '2.5rem 2rem' }}>
             {guestProfiles.map(profile => (
-              <GuestPolaroidCard
+              <PolaroidCard
                 key={profile.id}
                 profile={profile}
                 isOwn={profile.id === currentGuestId}
