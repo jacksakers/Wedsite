@@ -36,7 +36,7 @@ function VaultPhotoCard({ photo, isAdmin, onDelete, deleting }) {
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex flex-col justify-between p-2">
         {/* Uploader tag — always visible at bottom */}
         <div />
-        <div className="translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-between">
+        <div className="translate-y-2 translate-y-0 opacity-0 opacity-100 transition-all duration-200 flex items-center justify-between">
           <span className="font-sans text-[11px] text-white/90 bg-black/50 rounded px-2 py-0.5 truncate max-w-[60%]">
             {firstName}
           </span>

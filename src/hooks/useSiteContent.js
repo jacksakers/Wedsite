@@ -4,12 +4,11 @@ import { db } from '../firebase'
 const CONTENT_DOC = doc(db, 'config', 'siteContent')
 
 export const DEFAULT_SCHEDULE = [
-  { id: 's1', time: '2:30 PM', event: 'Guest Arrival & Seating', note: 'Please arrive 30 minutes before the ceremony.' },
-  { id: 's2', time: '3:00 PM', event: 'Ceremony Begins', note: 'Ceremony will be held in the garden.' },
-  { id: 's3', time: '3:45 PM', event: 'Cocktail Hour', note: 'Light refreshments on the veranda.' },
-  { id: 's4', time: '5:00 PM', event: 'Reception Dinner', note: '' },
-  { id: 's5', time: '8:00 PM', event: 'Dancing & Celebration', note: '' },
-  { id: 's6', time: '10:00 PM', event: 'Grand Send-Off', note: '' },
+  { id: 's1', time: '3:30 PM', event: 'Guest Arrival & Seating', note: 'The address of the venue is 2208 N Lake Dr, Columbia, SC 29212. Please arrive 30 minutes before the ceremony. Parking is provided. ' },
+  { id: 's2', time: '4:00 PM', event: 'Ceremony Begins', note: 'Ceremony will be held in the garden of the Jasmine House.' },
+  { id: 's3', time: '4:30 PM', event: 'Heavy Hors D\'oeuvres and Refreshments', note: 'Enjoyed in the River Road reception house after the ceremony. ' },
+  { id: 's4', time: '5:30 PM', event: 'Dancing & Celebration', note: 'A beautiful outdoor patio space with a tent, music, and lots of fun!' },
+  { id: 's5', time: '8:00 PM', event: 'Grand Send-Off', note: 'Bubbles will be provided!' },
 ]
 
 export const DEFAULT_HOTELS = [

@@ -3,7 +3,7 @@ const REGISTRIES = [
   {
     name: 'Amazon',
     description: 'Our primary registry with home essentials, appliances, every-day items, and more.',
-    href: 'https://amazon.com/wedding',
+    href: 'https://www.amazon.com/wedding/share/jackandkelsey2027',
     cta: 'View on Amazon',
   }
 ]
@@ -37,12 +37,14 @@ export default function Registry() {
           </p>
           {/* TODO: Replace with a real Stripe Payment Link or Venmo/PayPal link */}
           <a
-            href="#"
+            href="https://venmo.com/JackSakers"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block bg-sunrise-orange text-paper font-sans text-xs tracking-[0.2em] uppercase py-3 px-8 rounded hover:bg-sunrise-orange/80 transition-colors"
           >
             Contribute to Our Home
           </a>
-          <p className="font-sans text-sage/60 text-xs mt-4">Secure payment via Stripe — coming soon</p>
+          {/* <p className="font-sans text-sage/60 text-xs mt-4">Secure payment via Stripe — coming soon</p> */}
         </div>
 
         {/* Registry Cards */}
