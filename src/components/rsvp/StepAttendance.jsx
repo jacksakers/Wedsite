@@ -76,7 +76,7 @@ export default function StepAttendance({
                 <div className="rounded border border-dashed border-sage/20 px-4 py-3">
                   <p className="font-sans text-sage/70 text-sm leading-relaxed">
                     {response
-                      ? `${member.name} has already responded.`
+                      ? `${member.name} has already responded: ${getStatusLabel(response).toLowerCase()}.`
                       : `${member.name} can respond separately whenever they're ready.`}
                   </p>
                 </div>

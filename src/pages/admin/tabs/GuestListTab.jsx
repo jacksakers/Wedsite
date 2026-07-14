@@ -294,7 +294,9 @@ export default function GuestListTab() {
           <div>
             <p className="font-serif text-palmetto text-lg">Legacy guest records found</p>
             <p className="font-sans text-sage text-sm mt-1">
-              {legacyGroups.length} group{legacyGroups.length !== 1 ? 's still use' : ' still uses'} the old one-login-per-group format.
+              {legacyGroups.length === 1
+                ? '1 group still uses'
+                : `${legacyGroups.length} groups still use`} the old one-login-per-group format.
               Migrate them once so each guest can sign in and RSVP individually.
             </p>
           </div>
