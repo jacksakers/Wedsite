@@ -1,19 +1,26 @@
-import { useState, useEffect, useCallback } from 'react'
-import { getAllGuests, addGuest, updateGuest, deleteGuest, resetGuestUid } from '../../../hooks/useGuests'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import {
+  getAllGuests,
+  saveGuestGroup,
+  deleteGuestGroup,
+  resetGuestUid,
+  groupGuestsByHousehold,
+  migrateLegacyGuests,
+} from '../../../hooks/useGuests'
 import GuestImportExport from './GuestImportExport'
 
 const RSVP_OPTIONS = ['', 'Accepted', 'Declined', 'Pending']
-const EMPTY_FORM = { party: [{ name: '' }], address: '', phone: '', rsvpStatus: '', notes: '' }
+const EMPTY_FORM = { party: [{ guestId: null, name: '' }], address: '', phone: '', rsvpStatus: '', notes: '' }
 
 function PartyMemberInputs({ members, onChange }) {
   function updateMember(idx, val) {
     const next = [...members]
-    next[idx] = { name: val }
+    next[idx] = { ...next[idx], name: val }
     onChange(next)
   }
 
   function addMember() {
-    onChange([...members, { name: '' }])
+    onChange([...members, { guestId: null, name: '' }])
   }
 
   function removeMember(idx) {
@@ -22,18 +29,18 @@ function PartyMemberInputs({ members, onChange }) {
 
   return (
     <div className="flex flex-col gap-2">
-      {members.map((m, i) => (
-        <div key={i} className="flex gap-2 items-center">
+      {members.map((member, index) => (
+        <div key={member.guestId ?? index} className="flex gap-2 items-center">
           <input
-            value={m.name}
-            onChange={e => updateMember(i, e.target.value)}
-            placeholder={i === 0 ? 'Primary guest name *' : 'Additional party member'}
+            value={member.name}
+            onChange={e => updateMember(index, e.target.value)}
+            placeholder={index === 0 ? 'Primary guest name *' : 'Additional group member'}
             className="flex-1 border border-sage/40 rounded px-3 py-2 font-sans text-palmetto bg-paper text-sm focus:outline-none focus:ring-2 focus:ring-sage/50"
           />
-          {i > 0 && (
+          {index > 0 && (
             <button
               type="button"
-              onClick={() => removeMember(i)}
+              onClick={() => removeMember(index)}
               className="text-red-400 hover:text-red-600 text-lg leading-none px-1 transition-colors"
               aria-label="Remove member"
             >
@@ -47,7 +54,7 @@ function PartyMemberInputs({ members, onChange }) {
         onClick={addMember}
         className="font-sans text-xs text-sage hover:text-palmetto uppercase tracking-widest text-left mt-1 transition-colors"
       >
-        + Add party member
+        + Add group member
       </button>
     </div>
   )
@@ -57,36 +64,48 @@ function GuestFormModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(
     initial
       ? {
-          party:      initial.party.map(p => ({ name: p.name })),
-          address:    initial.address    ?? '',
-          phone:      initial.phone      ?? '',
+          party: initial.members.map(member => ({ guestId: member.id, name: member.name })),
+          address: initial.address ?? '',
+          phone: initial.phone ?? '',
           rsvpStatus: initial.rsvpStatus ?? '',
-          notes:      initial.notes      ?? '',
+          notes: initial.notes ?? '',
         }
       : EMPTY_FORM
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  function set(key, val) { setForm(f => ({ ...f, [key]: val })) }
+  function set(key, val) {
+    setForm(current => ({ ...current, [key]: val }))
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const primaryName = form.party[0]?.name?.trim()
-    if (!primaryName) { setError('Primary guest name is required.'); return }
-    const party = form.party
-      .filter(p => p.name.trim())
-      .map(p => ({ name: p.name.trim() }))
+    const party = form.party.reduce((members, member) => {
+      const name = member.name.trim()
+      if (!name) return members
+      members.push({
+        guestId: member.guestId ?? null,
+        name,
+      })
+      return members
+    }, [])
+
+    if (party.length === 0) {
+      setError('At least one guest name is required.')
+      return
+    }
+
     setSaving(true)
     setError('')
+
     try {
       await onSave({
-        name: primaryName,
         party,
-        address:    form.address.trim(),
-        phone:      form.phone.trim(),
+        address: form.address.trim(),
+        phone: form.phone.trim(),
         rsvpStatus: form.rsvpStatus.trim(),
-        notes:      form.notes.trim(),
+        notes: form.notes.trim(),
       })
     } catch {
       setError('Failed to save. Please try again.')
@@ -99,64 +118,64 @@ function GuestFormModal({ initial, onSave, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/40 z-50 overflow-y-auto mt-16">
       <div className="flex min-h-full items-start justify-center p-4">
-      <div className="bg-paper rounded-lg w-full max-w-md p-6 shadow-2xl my-16 sm:my-8">
-        <h3 className="font-serif text-palmetto text-xl mb-4">
-          {initial ? 'Edit Guest' : 'Add Guest'}
-        </h3>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <PartyMemberInputs
-            members={form.party}
-            onChange={party => set('party', party)}
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <input
-              value={form.address}
-              onChange={e => set('address', e.target.value)}
-              placeholder="Address"
-              className={fieldClass}
+        <div className="bg-paper rounded-lg w-full max-w-md p-6 shadow-2xl my-16 sm:my-8">
+          <h3 className="font-serif text-palmetto text-xl mb-4">
+            {initial ? 'Edit Group' : 'Add Group'}
+          </h3>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <PartyMemberInputs
+              members={form.party}
+              onChange={party => set('party', party)}
             />
-            <input
-              value={form.phone}
-              onChange={e => set('phone', e.target.value)}
-              placeholder="Phone"
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                value={form.address}
+                onChange={e => set('address', e.target.value)}
+                placeholder="Address"
+                className={fieldClass}
+              />
+              <input
+                value={form.phone}
+                onChange={e => set('phone', e.target.value)}
+                placeholder="Phone"
+                className={fieldClass}
+              />
+            </div>
+            <select
+              value={form.rsvpStatus}
+              onChange={e => set('rsvpStatus', e.target.value)}
               className={fieldClass}
+            >
+              {RSVP_OPTIONS.map(option => (
+                <option key={option} value={option}>{option || '— RSVP status —'}</option>
+              ))}
+            </select>
+            <textarea
+              value={form.notes}
+              onChange={e => set('notes', e.target.value)}
+              placeholder="Notes (role, dietary needs, etc.)"
+              rows={2}
+              className={`${fieldClass} resize-none`}
             />
-          </div>
-          <select
-            value={form.rsvpStatus}
-            onChange={e => set('rsvpStatus', e.target.value)}
-            className={fieldClass}
-          >
-            {RSVP_OPTIONS.map(o => (
-              <option key={o} value={o}>{o || '— RSVP status —'}</option>
-            ))}
-          </select>
-          <textarea
-            value={form.notes}
-            onChange={e => set('notes', e.target.value)}
-            placeholder="Notes (role, dietary needs, etc.)"
-            rows={2}
-            className={`${fieldClass} resize-none`}
-          />
-          {error && <p className="font-sans text-red-500 text-sm">{error}</p>}
-          <div className="flex gap-3 justify-end mt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="font-sans text-xs tracking-widest uppercase text-sage hover:text-palmetto transition-colors px-4 py-2"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-2 px-5 rounded hover:bg-palmetto/80 transition-colors disabled:opacity-50"
-            >
-              {saving ? 'Saving…' : 'Save'}
-            </button>
-          </div>
-        </form>
-      </div>
+            {error && <p className="font-sans text-red-500 text-sm">{error}</p>}
+            <div className="flex gap-3 justify-end mt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="font-sans text-xs tracking-widest uppercase text-sage hover:text-palmetto transition-colors px-4 py-2"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-2 px-5 rounded hover:bg-palmetto/80 transition-colors disabled:opacity-50"
+              >
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   )
@@ -166,14 +185,16 @@ export default function GuestListTab() {
   const [guests, setGuests] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [editGuest, setEditGuest] = useState(null)
+  const [editGroup, setEditGroup] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
   const [deleting, setDeleting] = useState(null)
   const [resetting, setResetting] = useState(null)
+  const [migrating, setMigrating] = useState(false)
   const [showImportExport, setShowImportExport] = useState(false)
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async ({ showSpinner = true } = {}) => {
+    if (showSpinner) setLoading(true)
+    setError('')
     try {
       setGuests(await getAllGuests())
     } catch {
@@ -183,44 +204,68 @@ export default function GuestListTab() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    let active = true
 
-  const handleImportComplete = useCallback(() => { load() }, [load])
+    ;(async () => {
+      try {
+        const nextGuests = await getAllGuests()
+        if (!active) return
+        setGuests(nextGuests)
+      } catch {
+        if (active) setError('Failed to load guests.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    })()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const groups = useMemo(() => groupGuestsByHousehold(guests), [guests])
+  const legacyGroups = groups.filter(group => group.isLegacy)
+  const totalPeople = guests.length
 
   async function handleSave(data) {
-    if (editGuest) {
-      await updateGuest(editGuest.id, data)
-    } else {
-      await addGuest(data)
-    }
-    setEditGuest(null)
+    await saveGuestGroup(editGroup, data)
+    setEditGroup(null)
     setShowAdd(false)
     await load()
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm('Remove this guest from the invited list?')) return
-    setDeleting(id)
+  async function handleDelete(group) {
+    if (!window.confirm('Remove this entire group from the invited list?')) return
+    setDeleting(group.id)
     try {
-      await deleteGuest(id)
-      setGuests(prev => prev.filter(g => g.id !== id))
+      await deleteGuestGroup(group)
+      setGuests(prev => prev.filter(guest => guest.groupId !== group.id && guest.id !== group.id))
     } finally {
       setDeleting(null)
     }
   }
 
-  async function handleResetClaim(id) {
-    if (!window.confirm('Reset this guest\'s device link? They will need to re-select their name on their next visit.')) return
-    setResetting(id)
+  async function handleResetClaim(member) {
+    if (!window.confirm('Reset this guest’s device link? They will need to re-select their name on their next visit.')) return
+    setResetting(member.id)
     try {
-      await resetGuestUid(id)
-      setGuests(prev => prev.map(g => g.id === id ? { ...g, linkedUid: null } : g))
+      await resetGuestUid(member.id)
+      setGuests(prev => prev.map(guest => guest.id === member.id ? { ...guest, linkedUid: null } : guest))
     } finally {
       setResetting(null)
     }
   }
 
-  const totalPeople = guests.reduce((sum, g) => sum + (g.party?.length ?? 1), 0)
+  async function handleMigrateLegacy() {
+    setMigrating(true)
+    try {
+      await migrateLegacyGuests()
+      await load()
+    } finally {
+      setMigrating(false)
+    }
+  }
 
   return (
     <div>
@@ -228,7 +273,7 @@ export default function GuestListTab() {
         <div>
           <h2 className="font-serif text-palmetto text-2xl text-pressed">Guest List</h2>
           <p className="font-sans text-sage text-xs mt-1">
-            {guests.length} group{guests.length !== 1 ? 's' : ''} · {totalPeople} people invited
+            {groups.length} group{groups.length !== 1 ? 's' : ''} · {totalPeople} people invited
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -239,99 +284,125 @@ export default function GuestListTab() {
             Import / Export
           </button>
           <button
-            onClick={() => { setEditGuest(null); setShowAdd(true) }}
+            onClick={() => { setEditGroup(null); setShowAdd(true) }}
             className="bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-2 px-5 rounded hover:bg-palmetto/80 transition-colors"
           >
-            + Add Guest
+            + Add Group
           </button>
         </div>
       </div>
 
-      {(showAdd || editGuest) && (
+      {legacyGroups.length > 0 && (
+        <div className="mb-6 rounded-lg border border-sunrise-orange/30 bg-sunrise-orange/10 px-5 py-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="font-serif text-palmetto text-lg">Legacy guest records found</p>
+            <p className="font-sans text-sage text-sm mt-1">
+              {legacyGroups.length === 1
+                ? '1 group still uses'
+                : `${legacyGroups.length} groups still use`} the old one-login-per-group format.
+              Migrate them once so each guest can sign in and RSVP individually.
+            </p>
+          </div>
+          <button
+            onClick={handleMigrateLegacy}
+            disabled={migrating}
+            className="shrink-0 bg-palmetto text-paper font-sans text-xs tracking-[0.2em] uppercase py-2 px-5 rounded hover:bg-palmetto/80 transition-colors disabled:opacity-50"
+          >
+            {migrating ? 'Migrating…' : 'Migrate'}
+          </button>
+        </div>
+      )}
+
+      {(showAdd || editGroup) && (
         <GuestFormModal
-          initial={editGuest}
+          initial={editGroup}
           onSave={handleSave}
-          onClose={() => { setShowAdd(false); setEditGuest(null) }}
+          onClose={() => { setShowAdd(false); setEditGroup(null) }}
         />
       )}
 
       {showImportExport && (
         <GuestImportExport
-          guests={guests}
-          onImportComplete={handleImportComplete}
+          groups={groups}
+          onImportComplete={load}
           onClose={() => setShowImportExport(false)}
         />
       )}
 
       {loading && <p className="font-sans text-sage text-center py-12">Loading guests…</p>}
       {error && <p className="font-sans text-red-500 text-center py-12">{error}</p>}
-      {!loading && !error && guests.length === 0 && (
+      {!loading && !error && groups.length === 0 && (
         <p className="font-sans text-sage text-center py-12">
-          No guests yet. Add your first guest to get started.
+          No guests yet. Add your first group to get started.
         </p>
       )}
-      {!loading && guests.length > 0 && (
-        <div className="flex flex-col gap-2">
-          {guests.map(guest => (
+      {!loading && groups.length > 0 && (
+        <div className="flex flex-col gap-3">
+          {groups.map(group => (
             <div
-              key={guest.id}
+              key={group.id}
               className="border border-sage/20 rounded-lg px-5 py-4 flex items-start justify-between hover:bg-sage/5 transition-colors"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-serif text-palmetto">{guest.name}</p>
-                  {guest.rsvpStatus && (
+                  <p className="font-serif text-palmetto">{group.name}</p>
+                  {group.rsvpStatus && (
                     <span className={`font-sans text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                      guest.rsvpStatus === 'Accepted'  ? 'bg-palmetto/10 text-palmetto' :
-                      guest.rsvpStatus === 'Declined'  ? 'bg-red-100 text-red-400' :
+                      group.rsvpStatus === 'Accepted' ? 'bg-palmetto/10 text-palmetto' :
+                      group.rsvpStatus === 'Declined' ? 'bg-red-100 text-red-400' :
                       'bg-sage/10 text-sage'
-                    }`}>{guest.rsvpStatus}</span>
+                    }`}>{group.rsvpStatus}</span>
+                  )}
+                  {group.isLegacy && (
+                    <span className="font-sans text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-sunrise-orange/10 text-sunrise-orange">
+                      Legacy
+                    </span>
                   )}
                 </div>
-                {guest.party?.length > 1 && (
-                  <p className="font-sans text-sage text-xs mt-0.5">
-                    + {guest.party.slice(1).map(p => p.name).join(', ')}
-                  </p>
-                )}
-                {(guest.address || guest.phone) && (
+                <p className="font-sans text-sage text-xs mt-0.5">
+                  {group.party.map(member => member.name).join(' | ')}
+                </p>
+                {(group.address || group.phone) && (
                   <p className="font-sans text-sage/60 text-xs mt-0.5 truncate">
-                    {[guest.address, guest.phone].filter(Boolean).join(' · ')}
+                    {[group.address, group.phone].filter(Boolean).join(' · ')}
                   </p>
                 )}
-                {guest.notes && (
-                  <p className="font-sans text-sage/50 text-xs mt-0.5 italic truncate">{guest.notes}</p>
+                {group.notes && (
+                  <p className="font-sans text-sage/50 text-xs mt-0.5 italic truncate">{group.notes}</p>
                 )}
-                <div className="flex items-center gap-3 mt-1">
-                  <p className="font-sans text-sage/50 text-xs">
-                    {guest.party?.length ?? 1} {guest.party?.length === 1 ? 'person' : 'people'}
-                  </p>
-                  {guest.linkedUid ? (
-                    <span className="font-sans text-palmetto/50 text-[10px] tracking-widest uppercase">✓ linked</span>
-                  ) : (
-                    <span className="font-sans text-sage/30 text-[10px] tracking-widest uppercase">not linked</span>
-                  )}
+                <div className="mt-3 flex flex-col gap-2">
+                  {group.members.map(member => (
+                    <div key={member.id} className="flex items-center gap-3 flex-wrap">
+                      <p className="font-sans text-xs text-palmetto">{member.name}</p>
+                      {member.linkedUid ? (
+                        <>
+                          <span className="font-sans text-palmetto/50 text-[10px] tracking-widest uppercase">✓ linked</span>
+                          <button
+                            onClick={() => handleResetClaim(member)}
+                            disabled={resetting === member.id}
+                            className="font-sans text-xs text-sage/50 hover:text-sunrise-orange transition-colors disabled:opacity-50"
+                            title="Reset device link so this guest can re-claim from any device"
+                          >
+                            Reset link
+                          </button>
+                        </>
+                      ) : (
+                        <span className="font-sans text-sage/30 text-[10px] tracking-widest uppercase">not linked</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="flex gap-4 ml-4 shrink-0 pt-0.5">
                 <button
-                  onClick={() => { setShowAdd(false); setEditGuest(guest) }}
+                  onClick={() => { setShowAdd(false); setEditGroup(group) }}
                   className="font-sans text-xs text-sage hover:text-palmetto uppercase tracking-widest transition-colors"
                 >
                   Edit
                 </button>
-                {guest.linkedUid && (
-                  <button
-                    onClick={() => handleResetClaim(guest.id)}
-                    disabled={resetting === guest.id}
-                    className="font-sans text-xs text-sage/50 hover:text-sunrise-orange transition-colors disabled:opacity-50"
-                    title="Reset device link so this guest can re-claim from any device"
-                  >
-                    Reset link
-                  </button>
-                )}
                 <button
-                  onClick={() => handleDelete(guest.id)}
-                  disabled={deleting === guest.id}
+                  onClick={() => handleDelete(group)}
+                  disabled={deleting === group.id}
                   className="font-sans text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
                 >
                   Remove

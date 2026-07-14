@@ -39,11 +39,10 @@ service cloud.firestore {
 
     // ─── /rsvps ──────────────────────────────────────────────────────────────
     // Any authenticated user can submit or update their own RSVP.
-    // setDoc uses the guestId as the document key, so we allow writes where the
-    // document ID matches the uid OR the caller is an admin (admin edits/deletes).
-    // Reading the full list is restricted to admins only.
+    // Guests also need to read RSVP records so they can see who in their group
+    // has already replied when responding for themselves.
     match /rsvps/{rsvpId} {
-      allow read:   if isAdmin();
+      allow read:   if isAuthenticated();
       allow create,
             update: if isAuthenticated();
       allow delete: if isAdmin();

@@ -5,7 +5,7 @@ export default function StepDetails({ values, onChange, onSubmit, onBack, loadin
         A Few More Details
       </h2>
       <p className="font-sans text-sage text-sm text-center mb-8">
-        Almost there — just a couple of fun extras.
+        Almost there — just a couple of extras for your reply.
       </p>
 
       <div className="space-y-6 mb-8">
@@ -16,7 +16,7 @@ export default function StepDetails({ values, onChange, onSubmit, onBack, loadin
           <textarea
             value={values.notes}
             onChange={e => onChange({ ...values, notes: e.target.value })}
-            placeholder="Let us know about any allergies or dietary needs for your party."
+            placeholder="Let us know about any allergies or dietary needs we should know about for you."
             rows={3}
             className="w-full border border-sage/40 rounded px-4 py-3 font-sans text-palmetto bg-paper focus:outline-none focus:ring-2 focus:ring-sage/50 resize-none"
           />
@@ -26,7 +26,7 @@ export default function StepDetails({ values, onChange, onSubmit, onBack, loadin
         <div className="border-t border-sage/20 pt-6">
           <p className="font-serif text-palmetto text-lg mb-1 text-center">One last thing…</p>
           <p className="font-sans text-sage text-sm text-center leading-relaxed mb-6">
-            We'd love to send everyone a keepsake card in the mail as a small token of our love and appreciation for your support.
+            We'd love to send everyone a keepsake card in the mail as a small token of our love and appreciation.
           </p>
 
           <div className="space-y-4">

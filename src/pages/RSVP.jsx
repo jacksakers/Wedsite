@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { submitRSVP } from '../hooks/useRSVP'
+import { getGroupRSVPs, submitRSVP } from '../hooks/useRSVP'
 import { RSVP_DEADLINE } from '../constants/weddingInfo'
 import StepLookup from '../components/rsvp/StepLookup'
 import StepAttendance from '../components/rsvp/StepAttendance'
@@ -32,31 +32,112 @@ function StepIndicator({ current }) {
   )
 }
 
+const EMPTY_DETAILS = {
+  notes: '',
+  phone: '',
+  addressLine1: '',
+  addressCity: '',
+  addressState: '',
+  addressZip: '',
+}
+
+function indexResponsesById(responses) {
+  return responses.reduce((acc, response) => {
+    acc[response.guestId ?? response.id] = response
+    return acc
+  }, {})
+}
+
 export default function RSVP() {
   const { user } = useAuth()
   const [step, setStep] = useState(1)
   const [guest, setGuest] = useState(null)
-  const [attendance, setAttendance] = useState([])
-  const [details, setDetails] = useState({ notes: '', phone: '', addressLine1: '', addressCity: '', addressState: '', addressZip: '' })
+  const [groupResponses, setGroupResponses] = useState({})
+  const [groupAttendance, setGroupAttendance] = useState({})
+  const [details, setDetails] = useState(EMPTY_DETAILS)
+  const [loadingGuest, setLoadingGuest] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
-  function handleGuestFound(foundGuest) {
-    setGuest(foundGuest)
-    setAttendance(foundGuest.party.map(p => ({ name: p.name, attending: undefined })))
-    setStep(2)
+  async function handleGuestFound(foundGuest) {
+    setSubmitError('')
+    setLoadingGuest(true)
+
+    try {
+      const responses = await getGroupRSVPs(foundGuest.groupId ?? foundGuest.id)
+      const responseMap = indexResponsesById(responses)
+      const existingResponse = responseMap[foundGuest.id]
+
+      setGuest(foundGuest)
+      setGroupResponses(responseMap)
+
+      const partyMembers = foundGuest.party ?? [{ guestId: foundGuest.id, name: foundGuest.name }]
+      const initialGroupAttendance = {}
+      partyMembers.forEach(member => {
+        const response = responseMap[member.guestId]
+        if (response) initialGroupAttendance[member.guestId] = response.attending
+      })
+      setGroupAttendance(initialGroupAttendance)
+
+      setDetails(responseMap[foundGuest.id]
+        ? {
+            notes: existingResponse.notes ?? '',
+            phone: existingResponse.phone ?? '',
+            addressLine1: existingResponse.addressLine1 ?? '',
+            addressCity: existingResponse.addressCity ?? '',
+            addressState: existingResponse.addressState ?? '',
+            addressZip: existingResponse.addressZip ?? '',
+          }
+        : EMPTY_DETAILS)
+      setStep(2)
+    } catch {
+      setSubmitError('We found your invitation, but could not load your group right now. Please check your connection and try again.')
+    } finally {
+      setLoadingGuest(false)
+    }
   }
 
   async function handleSubmit() {
+    if (!guest || groupAttendance[guest.id] === undefined) return
+
     setSubmitError('')
     setSubmitting(true)
     try {
-      await submitRSVP(guest.id, {
-        guestId: guest.id,
-        guestName: guest.name,
-        partyAttendance: attendance,
-        ...details,
-        uid: user?.uid ?? null,
+      const partyMembers = guest.party ?? [{ guestId: guest.id, name: guest.name }]
+      const groupId = guest.groupId ?? guest.id
+
+      await Promise.all(
+        partyMembers
+          .filter(member => groupAttendance[member.guestId] !== undefined)
+          .map(member => {
+            const isCurrentGuest = member.guestId === guest.id
+            return submitRSVP(member.guestId, {
+              guestId: member.guestId,
+              guestName: member.name,
+              groupId,
+              attending: groupAttendance[member.guestId],
+              ...(isCurrentGuest ? details : {}),
+              uid: user?.uid ?? null,
+            })
+          })
+      )
+
+      setGroupResponses(prev => {
+        const next = { ...prev }
+        partyMembers
+          .filter(member => groupAttendance[member.guestId] !== undefined)
+          .forEach(member => {
+            const isCurrentGuest = member.guestId === guest.id
+            next[member.guestId] = {
+              ...(isCurrentGuest ? details : {}),
+              guestId: member.guestId,
+              guestName: member.name,
+              groupId,
+              attending: groupAttendance[member.guestId],
+              uid: user?.uid ?? null,
+            }
+          })
+        return next
       })
       setStep(4)
     } catch {
@@ -65,8 +146,6 @@ export default function RSVP() {
       setSubmitting(false)
     }
   }
-
-  const anyAttending = attendance.some(a => a.attending === true)
 
   return (
     <main className="bg-paper min-h-[80svh] mb-10">
@@ -80,13 +159,26 @@ export default function RSVP() {
       <section className="py-16 px-6 max-w-2xl mx-auto paper-lift">
         {step < 4 && <StepIndicator current={step} />}
 
-        {step === 1 && <StepLookup onFound={handleGuestFound} />}
+        {step === 1 && (
+          <>
+            <StepLookup onFound={handleGuestFound} />
+            {(loadingGuest || submitError) && (
+              <p className={`font-sans text-sm mt-4 text-center ${submitError ? 'text-red-500' : 'text-sage'}`}>
+                {loadingGuest ? 'Loading your group…' : submitError}
+              </p>
+            )}
+          </>
+        )}
 
         {step === 2 && guest && (
           <StepAttendance
-            party={guest.party}
-            attendance={attendance}
-            onChange={setAttendance}
+            guestId={guest.id}
+            guestName={guest.name}
+            party={guest.party ?? [{ guestId: guest.id, name: guest.name }]}
+            groupAttendance={groupAttendance}
+            onGroupAttendanceChange={(id, value) =>
+              setGroupAttendance(prev => ({ ...prev, [id]: value }))
+            }
             onNext={() => setStep(3)}
             onBack={() => setStep(1)}
           />
@@ -108,7 +200,7 @@ export default function RSVP() {
         )}
 
         {step === 4 && guest && (
-          <StepConfirmation guestName={guest.name} anyAttending={anyAttending} />
+          <StepConfirmation guestName={guest.name} attending={groupAttendance[guest.id] === true} />
         )}
       </section>
     </main>

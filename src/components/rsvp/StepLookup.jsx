@@ -30,7 +30,7 @@ export default function StepLookup({ onFound }) {
     <div className="text-center">
       <h2 className="font-serif text-palmetto text-3xl mb-3">Find Your Invitation</h2>
       <p className="font-sans text-sage text-sm mb-8">
-        Enter your first and last name exactly as it appears on your invitation.
+        Enter your first and last name exactly as it appears on your invitation to see your group.
       </p>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm mx-auto">
         <input
