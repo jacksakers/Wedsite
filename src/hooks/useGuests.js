@@ -14,6 +14,14 @@ function normalizeName(value) {
   return String(value ?? '').trim()
 }
 
+function generateGuestId() {
+  return doc(collection(db, 'guests')).id
+}
+
+function getLegacyMemberId(groupId, index) {
+  return `legacy-${groupId}-${index}`
+}
+
 function normalizeParty(party, fallbackName = '') {
   const source = Array.isArray(party) && party.length > 0
     ? party
@@ -71,7 +79,7 @@ export function groupGuestsByHousehold(guests) {
       const orderedMembers = party
         .map((member, index) => ({
           ...(membersById.get(member.guestId) ?? {
-            id: member.guestId ?? `${id}-${index}`,
+            id: member.guestId ?? getLegacyMemberId(id, index),
             linkedUid: null,
           }),
           name: member.name,
@@ -116,7 +124,7 @@ export async function saveGuestGroup(initialGroup, data) {
 
   const existingMembers = new Map((initialGroup?.members ?? []).map(member => [member.id, member]))
   const preparedMembers = names.map(member => ({
-    guestId: member.guestId ?? doc(collection(db, 'guests')).id,
+    guestId: member.guestId ?? generateGuestId(),
     name: member.name,
   }))
   const groupId = initialGroup?.id ?? preparedMembers[0].guestId
@@ -169,7 +177,7 @@ export async function migrateLegacyGuests() {
 
   for (const guest of legacyGuests) {
     const party = normalizeParty(guest.party, guest.name).map((member, index) => ({
-      guestId: member.guestId ?? (index === 0 ? guest.id : doc(collection(db, 'guests')).id),
+      guestId: member.guestId ?? (index === 0 ? guest.id : generateGuestId()),
       name: member.name,
       sortOrder: index,
     }))

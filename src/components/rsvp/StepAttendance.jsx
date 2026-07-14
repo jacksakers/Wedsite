@@ -28,7 +28,7 @@ export default function StepAttendance({
 
       <div className="space-y-6 mb-8">
         {allPartyMembers.map(member => {
-          const response = groupResponses[member.guestId]
+          const memberResponse = groupResponses[member.guestId]
           const isCurrentGuest = member.guestId === guestId
 
           return (
@@ -38,7 +38,7 @@ export default function StepAttendance({
                   <p className="font-serif text-palmetto text-xl">{member.name}</p>
                   {!isCurrentGuest && (
                     <p className="font-sans text-sage text-xs mt-1 uppercase tracking-widest">
-                      {getStatusLabel(response)}
+                      {getStatusLabel(memberResponse)}
                     </p>
                   )}
                 </div>
@@ -75,8 +75,8 @@ export default function StepAttendance({
               ) : (
                 <div className="rounded border border-dashed border-sage/20 px-4 py-3">
                   <p className="font-sans text-sage/70 text-sm leading-relaxed">
-                    {response
-                      ? `${member.name} has already responded: ${getStatusLabel(response).toLowerCase()}.`
+                    {memberResponse
+                      ? `${member.name} has already responded: ${getStatusLabel(memberResponse).toLowerCase()}.`
                       : `${member.name} can respond separately whenever they're ready.`}
                   </p>
                 </div>

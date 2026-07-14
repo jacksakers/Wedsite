@@ -81,12 +81,15 @@ function GuestFormModal({ initial, onSave, onClose }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const party = form.party
-      .map(member => ({
+    const party = form.party.reduce((members, member) => {
+      const name = member.name.trim()
+      if (!name) return members
+      members.push({
         guestId: member.guestId ?? null,
-        name: member.name.trim(),
-      }))
-      .filter(member => member.name)
+        name,
+      })
+      return members
+    }, [])
 
     if (party.length === 0) {
       setError('At least one guest name is required.')
