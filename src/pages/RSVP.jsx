@@ -53,7 +53,7 @@ export default function RSVP() {
   const [step, setStep] = useState(1)
   const [guest, setGuest] = useState(null)
   const [groupResponses, setGroupResponses] = useState({})
-  const [attendance, setAttendance] = useState(undefined)
+  const [groupAttendance, setGroupAttendance] = useState({})
   const [details, setDetails] = useState(EMPTY_DETAILS)
   const [loadingGuest, setLoadingGuest] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -70,8 +70,16 @@ export default function RSVP() {
 
       setGuest(foundGuest)
       setGroupResponses(responseMap)
-      setAttendance(existingResponse?.attending)
-      setDetails(existingResponse
+
+      const partyMembers = foundGuest.party ?? [{ guestId: foundGuest.id, name: foundGuest.name }]
+      const initialGroupAttendance = {}
+      partyMembers.forEach(member => {
+        const response = responseMap[member.guestId]
+        if (response) initialGroupAttendance[member.guestId] = response.attending
+      })
+      setGroupAttendance(initialGroupAttendance)
+
+      setDetails(responseMap[foundGuest.id]
         ? {
             notes: existingResponse.notes ?? '',
             phone: existingResponse.phone ?? '',
@@ -90,30 +98,47 @@ export default function RSVP() {
   }
 
   async function handleSubmit() {
-    if (!guest || attendance === undefined) return
+    if (!guest || groupAttendance[guest.id] === undefined) return
 
     setSubmitError('')
     setSubmitting(true)
     try {
-      await submitRSVP(guest.id, {
-        guestId: guest.id,
-        guestName: guest.name,
-        groupId: guest.groupId ?? guest.id,
-        attending: attendance,
-        ...details,
-        uid: user?.uid ?? null,
+      const partyMembers = guest.party ?? [{ guestId: guest.id, name: guest.name }]
+      const groupId = guest.groupId ?? guest.id
+
+      await Promise.all(
+        partyMembers
+          .filter(member => groupAttendance[member.guestId] !== undefined)
+          .map(member => {
+            const isCurrentGuest = member.guestId === guest.id
+            return submitRSVP(member.guestId, {
+              guestId: member.guestId,
+              guestName: member.name,
+              groupId,
+              attending: groupAttendance[member.guestId],
+              ...(isCurrentGuest ? details : {}),
+              uid: user?.uid ?? null,
+            })
+          })
+      )
+
+      setGroupResponses(prev => {
+        const next = { ...prev }
+        partyMembers
+          .filter(member => groupAttendance[member.guestId] !== undefined)
+          .forEach(member => {
+            const isCurrentGuest = member.guestId === guest.id
+            next[member.guestId] = {
+              ...(isCurrentGuest ? details : {}),
+              guestId: member.guestId,
+              guestName: member.name,
+              groupId,
+              attending: groupAttendance[member.guestId],
+              uid: user?.uid ?? null,
+            }
+          })
+        return next
       })
-      setGroupResponses(prev => ({
-        ...prev,
-        [guest.id]: {
-          ...details,
-          guestId: guest.id,
-          guestName: guest.name,
-          groupId: guest.groupId ?? guest.id,
-          attending: attendance,
-          uid: user?.uid ?? null,
-        },
-      }))
       setStep(4)
     } catch {
       setSubmitError('Something went wrong submitting your RSVP. Please try again.')
@@ -150,9 +175,10 @@ export default function RSVP() {
             guestId={guest.id}
             guestName={guest.name}
             party={guest.party ?? [{ guestId: guest.id, name: guest.name }]}
-            currentAttendance={attendance}
-            groupResponses={groupResponses}
-            onChange={setAttendance}
+            groupAttendance={groupAttendance}
+            onGroupAttendanceChange={(id, value) =>
+              setGroupAttendance(prev => ({ ...prev, [id]: value }))
+            }
             onNext={() => setStep(3)}
             onBack={() => setStep(1)}
           />
@@ -174,7 +200,7 @@ export default function RSVP() {
         )}
 
         {step === 4 && guest && (
-          <StepConfirmation guestName={guest.name} attending={attendance === true} />
+          <StepConfirmation guestName={guest.name} attending={groupAttendance[guest.id] === true} />
         )}
       </section>
     </main>
