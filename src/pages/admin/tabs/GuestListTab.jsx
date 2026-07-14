@@ -228,6 +228,10 @@ export default function GuestListTab() {
   const legacyGroups = groups.filter(group => group.isLegacy)
   const totalPeople = guests.length
 
+  function isMemberOfGroup(guest, group) {
+    return guest.groupId === group.id || guest.id === group.id
+  }
+
   async function handleSave(data) {
     await saveGuestGroup(editGroup, data)
     setEditGroup(null)
@@ -240,7 +244,7 @@ export default function GuestListTab() {
     setDeleting(group.id)
     try {
       await deleteGuestGroup(group)
-      setGuests(prev => prev.filter(guest => guest.groupId !== group.id && guest.id !== group.id))
+      setGuests(prev => prev.filter(guest => !isMemberOfGroup(guest, group)))
     } finally {
       setDeleting(null)
     }
@@ -360,7 +364,7 @@ export default function GuestListTab() {
                   )}
                 </div>
                 <p className="font-sans text-sage text-xs mt-0.5">
-                  {group.party.map(member => member.name).join(' · ')}
+                  {group.party.map(member => member.name).join(' | ')}
                 </p>
                 {(group.address || group.phone) && (
                   <p className="font-sans text-sage/60 text-xs mt-0.5 truncate">

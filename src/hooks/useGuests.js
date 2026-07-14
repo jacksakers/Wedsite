@@ -18,8 +18,8 @@ function generateGuestId() {
   return doc(collection(db, 'guests')).id
 }
 
-function getLegacyMemberId(groupId, index) {
-  return `legacy-${groupId}-${index}`
+function getLegacyMemberId(groupId, index, name) {
+  return `legacy-${groupId}-${index}-${normalizeName(name).toLowerCase().replace(/\s+/g, '-')}`
 }
 
 function normalizeParty(party, fallbackName = '') {
@@ -79,7 +79,7 @@ export function groupGuestsByHousehold(guests) {
       const orderedMembers = party
         .map((member, index) => ({
           ...(membersById.get(member.guestId) ?? {
-            id: member.guestId ?? getLegacyMemberId(id, index),
+            id: member.guestId ?? getLegacyMemberId(id, index, member.name),
             linkedUid: null,
           }),
           name: member.name,

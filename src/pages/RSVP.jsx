@@ -41,7 +41,7 @@ const EMPTY_DETAILS = {
   addressZip: '',
 }
 
-function toResponseMap(responses) {
+function indexResponsesById(responses) {
   return responses.reduce((acc, response) => {
     acc[response.guestId ?? response.id] = response
     return acc
@@ -65,7 +65,7 @@ export default function RSVP() {
 
     try {
       const responses = await getGroupRSVPs(foundGuest.groupId ?? foundGuest.id)
-      const responseMap = toResponseMap(responses)
+      const responseMap = indexResponsesById(responses)
       const existingResponse = responseMap[foundGuest.id]
 
       setGuest(foundGuest)
@@ -83,7 +83,7 @@ export default function RSVP() {
         : EMPTY_DETAILS)
       setStep(2)
     } catch {
-      setSubmitError('We found your invitation, but could not load your group. Please try again.')
+      setSubmitError('We found your invitation, but could not load your group right now. Please check your connection and try again.')
     } finally {
       setLoadingGuest(false)
     }

@@ -3,6 +3,14 @@ function getStatusLabel(response) {
   return response.attending ? 'Joyfully accepts' : 'Regretfully declines'
 }
 
+function getMemberStatusMessage(memberName, response) {
+  if (response) {
+    return `${memberName} has already responded: ${getStatusLabel(response).toLowerCase()}.`
+  }
+
+  return `${memberName} can respond separately whenever they're ready.`
+}
+
 export default function StepAttendance({
   guestId,
   guestName,
@@ -75,9 +83,7 @@ export default function StepAttendance({
               ) : (
                 <div className="rounded border border-dashed border-sage/20 px-4 py-3">
                   <p className="font-sans text-sage/70 text-sm leading-relaxed">
-                    {memberResponse
-                      ? `${member.name} has already responded: ${getStatusLabel(memberResponse).toLowerCase()}.`
-                      : `${member.name} can respond separately whenever they're ready.`}
+                    {getMemberStatusMessage(member.name, memberResponse)}
                   </p>
                 </div>
               )}
