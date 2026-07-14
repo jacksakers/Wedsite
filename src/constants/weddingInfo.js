@@ -15,5 +15,5 @@ export const WEDDING_TIME_DISPLAY = '4:00 PM'
 export const VENUE_NAME = 'The River Road and Jasmine Houses and Gardens'
 export const VENUE_CITY = 'Irmo, SC'
 
-export const RSVP_DEADLINE = 'July 1, 2026'
+export const RSVP_DEADLINE = 'December 1, 2026'
 export const MEAL_OPTIONS = ['Chicken', 'Fish', 'Vegetarian']
