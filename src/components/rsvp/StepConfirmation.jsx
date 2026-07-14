@@ -1,17 +1,17 @@
 import { Link } from 'react-router-dom'
 import { COUPLE_DISPLAY } from '../../constants/weddingInfo'
 
-export default function StepConfirmation({ guestName, anyAttending }) {
+export default function StepConfirmation({ guestName, attending }) {
   return (
     <div className="text-center py-10">
       <div className="w-16 h-px bg-sunrise-pink mx-auto mb-10" />
 
       <h2 className="font-serif text-palmetto text-4xl mb-4">
-        {anyAttending ? "We'll see you there!" : "We'll miss you!"}
+        {attending ? "We'll see you there!" : "We'll miss you!"}
       </h2>
 
       <p className="font-sans text-sage leading-relaxed mb-4 max-w-sm mx-auto">
-        {anyAttending
+        {attending
           ? <>Thank you, {guestName}. We can't wait to celebrate with you on March 13, 2027. Check out the <Link to="/lounge" className="underline">Lounge</Link> to connect with other guests before the big day!</>
           : `Thank you for letting us know, ${guestName}. We'll be thinking of you and are so grateful for your love and support.`}
       </p>

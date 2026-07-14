@@ -5,10 +5,12 @@ import { db } from '../firebase'
  * Looks up a guest in Firestore by their name.
  *
  * Expected /guests document shape:
- *   { name: "Jane Smith", nameLower: "jane smith", party: [{ name: "Jane Smith" }, ...] }
- *
- * To add guests, use Firebase Console → Firestore → guests collection.
- * Make sure to include the `nameLower` field (all-lowercase version of the guest's name).
+ *   {
+ *     name: "Jane Smith",
+ *     nameLower: "jane smith",
+ *     groupId: "abc123",
+ *     party: [{ guestId: "abc123", name: "Jane Smith" }, ...],
+ *   }
  */
 export async function lookupGuest(name) {
   const normalized = name.trim().toLowerCase()
@@ -18,9 +20,14 @@ export async function lookupGuest(name) {
   return { id: snap.docs[0].id, ...snap.docs[0].data() }
 }
 
+export async function getGroupRSVPs(groupId) {
+  const q = query(collection(db, 'rsvps'), where('groupId', '==', groupId))
+  const snap = await getDocs(q)
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+}
+
 /**
- * Writes (or overwrites) an RSVP to /rsvps/{guestId}.
- * Using setDoc with the guest ID as the key allows guests to update their RSVP.
+ * Writes (or overwrites) an individual RSVP to /rsvps/{guestId}.
  */
 export async function submitRSVP(guestId, data) {
   await setDoc(doc(db, 'rsvps', guestId), {

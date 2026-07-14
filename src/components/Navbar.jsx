@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { signOut } from 'firebase/auth'
 import { COUPLE_DISPLAY } from '../constants/weddingInfo'
+import { auth } from '../firebase'
+import { useAuth } from '../context/AuthContext'
 import NotificationBell from './NotificationBell'
 
 const NAV_LINKS = [
@@ -18,6 +21,12 @@ const navLinkClass = ({ isActive }) =>
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const { user } = useAuth()
+
+  async function handleSwitchGuest() {
+    await signOut(auth)
+    setIsOpen(false)
+  }
 
   return (
     <header className="sticky top-0 z-[150] bg-paper/95 backdrop-blur-sm border-b border-sage/20 shadow-sm paper-lift">
@@ -36,6 +45,15 @@ export default function Navbar() {
               {label}
             </NavLink>
           ))}
+          {user?.isAnonymous && (
+            <button
+              type="button"
+              onClick={handleSwitchGuest}
+              className="text-xs tracking-[0.2em] uppercase text-sage hover:text-palmetto transition-colors"
+            >
+              Switch Guest
+            </button>
+          )}
           <NotificationBell />
         </nav>
 
@@ -85,6 +103,17 @@ export default function Navbar() {
                 </NavLink>
               </li>
             ))}
+            {user?.isAnonymous && (
+              <li>
+                <button
+                  type="button"
+                  onClick={handleSwitchGuest}
+                  className="text-xs tracking-[0.2em] uppercase text-sage hover:text-palmetto transition-colors"
+                >
+                  Switch Guest
+                </button>
+              </li>
+            )}
           </ul>
         </nav>
       )}

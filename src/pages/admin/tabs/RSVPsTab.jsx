@@ -2,33 +2,29 @@ import { useState, useEffect } from 'react'
 import { collection, getDocs, orderBy, query, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../../../firebase'
 
-const TABLE_HEADERS = ['Guest', 'Party Member', 'Attending', 'Notes', 'Phone', 'Mailing Address', '']
+const TABLE_HEADERS = ['Guest', 'Response', 'Notes', 'Phone', 'Mailing Address', 'Submitted', '']
 
 function exportToCSV(rsvps) {
-  const rows = [['Guest', 'Party Member', 'Attending', 'Notes', 'Phone', 'Mailing Address', 'Submitted']]
-  rsvps.forEach(r => {
-    const address = [r.addressLine1, r.addressCity, r.addressState, r.addressZip].filter(Boolean).join(', ')
-    ;(r.partyAttendance ?? []).forEach((p, i) => {
-      rows.push([
-        i === 0 ? r.guestName : '',
-        p.name,
-        p.attending ? 'Yes' : 'No',
-        i === 0 ? r.notes || '' : '',
-        i === 0 ? r.phone || '' : '',
-        i === 0 ? address : '',
-        i === 0 ? (r.submittedAt?.toDate?.().toLocaleDateString() ?? '') : '',
-      ])
-    })
+  const rows = [['Guest', 'Response', 'Notes', 'Phone', 'Mailing Address', 'Submitted']]
+  rsvps.forEach(rsvp => {
+    rows.push([
+      rsvp.guestName,
+      rsvp.attending ? 'Yes' : 'No',
+      rsvp.notes || '',
+      rsvp.phone || '',
+      [rsvp.addressLine1, rsvp.addressCity, rsvp.addressState, rsvp.addressZip].filter(Boolean).join(', '),
+      rsvp.submittedAt?.toDate?.().toLocaleDateString() ?? '',
+    ])
   })
   const csv = rows
     .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
     .join('\n')
   const blob = new Blob([csv], { type: 'text/csv' })
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = 'rsvps.csv'
-  a.click()
-  URL.revokeObjectURL(a.href)
+  const anchor = document.createElement('a')
+  anchor.href = URL.createObjectURL(blob)
+  anchor.download = 'rsvps.csv'
+  anchor.click()
+  URL.revokeObjectURL(anchor.href)
 }
 
 export default function RSVPsTab() {
@@ -37,35 +33,39 @@ export default function RSVPsTab() {
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState(null)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    let active = true
 
-  async function load() {
-    setLoading(true)
-    try {
-      const q = query(collection(db, 'rsvps'), orderBy('submittedAt', 'desc'))
-      const snap = await getDocs(q)
-      setRsvps(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    } catch {
-      setError('Failed to load RSVPs. Check your Firestore rules.')
-    } finally {
-      setLoading(false)
+    ;(async () => {
+      try {
+        const q = query(collection(db, 'rsvps'), orderBy('submittedAt', 'desc'))
+        const snap = await getDocs(q)
+        if (active) setRsvps(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+      } catch {
+        if (active) setError('Failed to load RSVPs. Check your Firestore rules.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    })()
+
+    return () => {
+      active = false
     }
-  }
+  }, [])
 
   async function handleDelete(id) {
     if (!window.confirm('Delete this RSVP response? This cannot be undone.')) return
     setDeleting(id)
     try {
       await deleteDoc(doc(db, 'rsvps', id))
-      setRsvps(prev => prev.filter(r => r.id !== id))
+      setRsvps(prev => prev.filter(rsvp => rsvp.id !== id))
     } finally {
       setDeleting(null)
     }
   }
 
-  const allMembers = rsvps.flatMap(r => r.partyAttendance ?? [])
-  const attending = allMembers.filter(p => p.attending).length
-  const declined = allMembers.filter(p => p.attending === false).length
+  const attending = rsvps.filter(rsvp => rsvp.attending).length
+  const declined = rsvps.filter(rsvp => rsvp.attending === false).length
 
   return (
     <div>
@@ -102,49 +102,43 @@ export default function RSVPsTab() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-sage/20">
-                {TABLE_HEADERS.map(h => (
-                  <th key={h} className="font-sans text-xs tracking-[0.15em] uppercase text-sage/60 pb-3 pr-4 whitespace-nowrap">
-                    {h}
+                {TABLE_HEADERS.map(header => (
+                  <th key={header} className="font-sans text-xs tracking-[0.15em] uppercase text-sage/60 pb-3 pr-4 whitespace-nowrap">
+                    {header}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {rsvps.map(rsvp =>
-                (rsvp.partyAttendance ?? []).map((p, i) => (
-                  <tr key={`${rsvp.id}-${i}`} className="border-b border-sage/10 hover:bg-sage/5">
-                    <td className="font-serif text-palmetto py-3 pr-4 whitespace-nowrap">
-                      {i === 0 ? rsvp.guestName : ''}
-                    </td>
-                    <td className="font-sans text-sage text-sm py-3 pr-4 whitespace-nowrap">{p.name}</td>
-                    <td className="py-3 pr-4">
-                      <span className={`font-sans text-xs tracking-wide uppercase px-2 py-0.5 rounded-full ${
-                        p.attending ? 'bg-sage/20 text-palmetto' : 'bg-sunrise-pink/30 text-palmetto'
-                      }`}>
-                        {p.attending ? 'Yes' : 'No'}
-                      </span>
-                    </td>
-                    <td className="font-sans text-sage text-sm py-3 pr-4">{i === 0 ? rsvp.notes || '—' : ''}</td>
-                    <td className="font-sans text-sage text-sm py-3 pr-4 whitespace-nowrap">{i === 0 ? rsvp.phone || '—' : ''}</td>
-                    <td className="font-sans text-sage text-sm py-3 pr-4">
-                      {i === 0
-                        ? [rsvp.addressLine1, rsvp.addressCity, rsvp.addressState, rsvp.addressZip].filter(Boolean).join(', ') || '—'
-                        : ''}
-                    </td>
-                    <td className="py-3">
-                      {i === 0 && (
-                        <button
-                          onClick={() => handleDelete(rsvp.id)}
-                          disabled={deleting === rsvp.id}
-                          className="font-sans text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
+              {rsvps.map(rsvp => (
+                <tr key={rsvp.id} className="border-b border-sage/10 hover:bg-sage/5">
+                  <td className="font-serif text-palmetto py-3 pr-4 whitespace-nowrap">{rsvp.guestName}</td>
+                  <td className="py-3 pr-4">
+                    <span className={`font-sans text-xs tracking-wide uppercase px-2 py-0.5 rounded-full ${
+                      rsvp.attending ? 'bg-sage/20 text-palmetto' : 'bg-sunrise-pink/30 text-palmetto'
+                    }`}>
+                      {rsvp.attending ? 'Yes' : 'No'}
+                    </span>
+                  </td>
+                  <td className="font-sans text-sage text-sm py-3 pr-4">{rsvp.notes || '—'}</td>
+                  <td className="font-sans text-sage text-sm py-3 pr-4 whitespace-nowrap">{rsvp.phone || '—'}</td>
+                  <td className="font-sans text-sage text-sm py-3 pr-4">
+                    {[rsvp.addressLine1, rsvp.addressCity, rsvp.addressState, rsvp.addressZip].filter(Boolean).join(', ') || '—'}
+                  </td>
+                  <td className="font-sans text-sage text-sm py-3 pr-4 whitespace-nowrap">
+                    {rsvp.submittedAt?.toDate?.().toLocaleDateString() ?? '—'}
+                  </td>
+                  <td className="py-3">
+                    <button
+                      onClick={() => handleDelete(rsvp.id)}
+                      disabled={deleting === rsvp.id}
+                      className="font-sans text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

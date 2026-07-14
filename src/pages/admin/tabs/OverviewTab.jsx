@@ -27,11 +27,11 @@ export default function OverviewTab() {
           getDocs(collection(db, 'guests')),
           getDoc(doc(db, 'config', 'announcement')),
         ])
-        const allMembers = rsvpSnap.docs.flatMap(d => d.data().partyAttendance ?? [])
+        const responses = rsvpSnap.docs.map(d => d.data())
         setStats({
           responses: rsvpSnap.size,
-          attending: allMembers.filter(p => p.attending).length,
-          declined: allMembers.filter(p => p.attending === false).length,
+          attending: responses.filter(response => response.attending).length,
+          declined: responses.filter(response => response.attending === false).length,
           invited: guestSnap.size,
         })
         if (annSnap.exists()) {
@@ -85,7 +85,7 @@ export default function OverviewTab() {
             />
           </div>
           <p className="font-sans text-sage/50 text-xs mt-1 text-right">
-            {stats.responses} of {stats.invited} groups responded
+            {stats.responses} of {stats.invited} guests responded
           </p>
         </div>
       )}
