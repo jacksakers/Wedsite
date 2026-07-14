@@ -274,7 +274,7 @@ export default function GuestImportExport({ groups, onImportComplete, onClose })
                           <div className="divide-y divide-sage/10 max-h-64 overflow-y-auto">
                             {preview.map((row, index) => (
                               <label
-                                key={`${row.previewKey}-${index}`}
+                                key={row.previewKey || `preview-${index}`}
                                 className="grid grid-cols-[24px_1fr_80px] px-2 sm:px-3 py-2.5 gap-2 sm:gap-3 items-center cursor-pointer hover:bg-sage/5 transition-colors"
                               >
                                 <input
