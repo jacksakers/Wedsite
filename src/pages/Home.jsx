@@ -4,6 +4,10 @@ import dockPhoto from '../assets/dock_photo.jpg'
 import dressedUp from '../assets/dressed_up.jpg'
 import lyonRun from '../assets/lyon_run.jpg'
 import laLeona from '../assets/la_leona.jpg'
+import horse from '../assets/horse.jpg'
+import boardwalk from '../assets/boardwalk.jpg'
+import ocean from '../assets/ocean.jpg'
+import ring from '../assets/ring.jpg'
 
 function Polaroid({ src, alt, rotate, tapeRotate, className = '' }) {
   return (
@@ -65,8 +69,8 @@ export default function Home() {
 
           {/* Top polaroid row: 2 photos on md+, 1 on mobile */}
           <div className="flex justify-between items-end mb-10 px-2">
-            <Polaroid src={dockPhoto}  alt="At the dock"  rotate="6deg"  tapeRotate="-4deg" />
-            <Polaroid src={dressedUp}  alt="Dressed up"   rotate="-5deg" tapeRotate="3deg"  className="hidden sm:block" />
+            <Polaroid src={horse}  alt="At the dock"  rotate="6deg"  tapeRotate="-4deg" />
+            <Polaroid src={ocean}  alt="Dressed up"   rotate="-5deg" tapeRotate="3deg"  className="hidden sm:block" />
           </div>
 
           {/* Wedding text */}
@@ -94,8 +98,8 @@ export default function Home() {
 
           {/* Bottom polaroid row: 2 photos on md+, 1 on mobile */}
           <div className="flex justify-between items-start mt-10 px-2">
-            <Polaroid src={lyonRun}  alt="Lyon run"  rotate="-4deg" tapeRotate="2deg"  className="ml-auto sm:ml-0" />
-            <Polaroid src={laLeona} alt="La Leona"  rotate="7deg"  tapeRotate="-5deg" className="hidden sm:block" />
+            <Polaroid src={boardwalk}  alt="Lyon run"  rotate="-4deg" tapeRotate="2deg"  className="ml-auto sm:ml-0" />
+            <Polaroid src={ring} alt="La Leona"  rotate="7deg"  tapeRotate="-5deg" className="hidden sm:block" />
           </div>
 
         </div>

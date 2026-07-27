@@ -6,6 +6,7 @@ import {
   resetGuestUid,
   groupGuestsByHousehold,
   migrateLegacyGuests,
+  updateGuestGroupInviteSent,
 } from '../../../hooks/useGuests'
 import GuestImportExport from './GuestImportExport'
 
@@ -191,6 +192,8 @@ export default function GuestListTab() {
   const [resetting, setResetting] = useState(null)
   const [migrating, setMigrating] = useState(false)
   const [showImportExport, setShowImportExport] = useState(false)
+  const [search, setSearch] = useState('')
+  const [updatingInviteSent, setUpdatingInviteSent] = useState(null)
 
   const load = useCallback(async ({ showSpinner = true } = {}) => {
     if (showSpinner) setLoading(true)
@@ -227,9 +230,30 @@ export default function GuestListTab() {
   const groups = useMemo(() => groupGuestsByHousehold(guests), [guests])
   const legacyGroups = groups.filter(group => group.isLegacy)
   const totalPeople = guests.length
+  const filteredGroups = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) return groups
+
+    return groups.filter(group => {
+      const haystack = [
+        group.name,
+        group.party?.map(member => member.name).join(' '),
+        group.members?.map(member => member.name).join(' '),
+        group.address,
+        group.phone,
+        group.notes,
+        group.rsvpStatus,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return haystack.includes(query)
+    })
+  }, [groups, search])
 
   async function handleSave(data) {
-    await saveGuestGroup(editGroup, data)
+    await saveGuestGroup(editGroup, { ...data, inviteSent: editGroup?.inviteSent ?? false })
     setEditGroup(null)
     setShowAdd(false)
     await load()
@@ -267,16 +291,33 @@ export default function GuestListTab() {
     }
   }
 
+  async function handleToggleInviteSent(group) {
+    const nextValue = !group.inviteSent
+    setUpdatingInviteSent(group.id)
+    try {
+      await updateGuestGroupInviteSent(group, nextValue)
+      setGuests(prev => prev.map(guest => guest.groupId === group.id ? { ...guest, inviteSent: nextValue } : guest))
+    } finally {
+      setUpdatingInviteSent(null)
+    }
+  }
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
         <div>
           <h2 className="font-serif text-palmetto text-2xl text-pressed">Guest List</h2>
           <p className="font-sans text-sage text-xs mt-1">
-            {groups.length} group{groups.length !== 1 ? 's' : ''} · {totalPeople} people invited
+            {search.trim() ? `${filteredGroups.length} of ${groups.length} groups` : `${groups.length} group${groups.length !== 1 ? 's' : ''}`} · {totalPeople} people invited
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search names, notes, or contact info"
+            className="border border-sage/40 rounded px-3 py-2 font-sans text-palmetto bg-paper text-sm focus:outline-none focus:ring-2 focus:ring-sage/50 min-w-[240px]"
+          />
           <button
             onClick={() => setShowImportExport(true)}
             className="font-sans text-xs tracking-[0.2em] uppercase py-2 px-4 rounded border border-sage/40 text-sage hover:text-palmetto hover:border-palmetto transition-colors"
@@ -336,9 +377,14 @@ export default function GuestListTab() {
           No guests yet. Add your first group to get started.
         </p>
       )}
-      {!loading && groups.length > 0 && (
+      {!loading && !error && groups.length > 0 && filteredGroups.length === 0 && (
+        <p className="font-sans text-sage text-center py-12">
+          No guests match your search.
+        </p>
+      )}
+      {!loading && groups.length > 0 && filteredGroups.length > 0 && (
         <div className="flex flex-col gap-3">
-          {groups.map(group => (
+          {filteredGroups.map(group => (
             <div
               key={group.id}
               className="border border-sage/20 rounded-lg px-5 py-4 flex items-start justify-between hover:bg-sage/5 transition-colors"
@@ -393,20 +439,32 @@ export default function GuestListTab() {
                   ))}
                 </div>
               </div>
-              <div className="flex gap-4 ml-4 shrink-0 pt-0.5">
-                <button
-                  onClick={() => { setShowAdd(false); setEditGroup(group) }}
-                  className="font-sans text-xs text-sage hover:text-palmetto uppercase tracking-widest transition-colors"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(group)}
-                  disabled={deleting === group.id}
-                  className="font-sans text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                >
-                  Remove
-                </button>
+              <div className="flex flex-col items-end gap-3 ml-4 shrink-0 pt-0.5">
+                <label className="flex items-center gap-2 font-sans text-[10px] uppercase tracking-[0.2em] text-sage cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(group.inviteSent)}
+                    disabled={updatingInviteSent === group.id}
+                    onChange={() => handleToggleInviteSent(group)}
+                    className="h-4 w-4 rounded border-sage/40 text-palmetto focus:ring-sage/50"
+                  />
+                  Invite sent
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => { setShowAdd(false); setEditGroup(group) }}
+                    className="font-sans text-xs text-sage hover:text-palmetto uppercase tracking-widest transition-colors"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(group)}
+                    disabled={deleting === group.id}
+                    className="font-sans text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             </div>
           ))}

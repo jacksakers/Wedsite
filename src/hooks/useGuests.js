@@ -51,6 +51,7 @@ function buildGuestRecord(member, party, groupId, shared, existing = {}) {
     phone: shared.phone,
     rsvpStatus: shared.rsvpStatus,
     notes: shared.notes,
+    inviteSent: shared.inviteSent,
     linkedUid: existing.linkedUid ?? null,
     createdAt: existing.createdAt ?? serverTimestamp(),
   }
@@ -99,6 +100,7 @@ export function groupGuestsByHousehold(guests) {
         phone: lead?.phone ?? '',
         rsvpStatus: lead?.rsvpStatus ?? '',
         notes: lead?.notes ?? '',
+        inviteSent: lead?.inviteSent ?? false,
         isLegacy: members.some(isLegacyGuestRecord),
       }
     })
@@ -138,6 +140,7 @@ export async function saveGuestGroup(initialGroup, data) {
     phone: normalizeName(data.phone),
     rsvpStatus: normalizeName(data.rsvpStatus),
     notes: normalizeName(data.notes),
+    inviteSent: Boolean(data.inviteSent),
   }
 
   const batch = writeBatch(db)
@@ -167,6 +170,14 @@ export async function deleteGuestGroup(group) {
   group.members.forEach(member => {
     batch.delete(doc(db, 'guests', member.id))
     batch.delete(doc(db, 'rsvps', member.id))
+  })
+  await batch.commit()
+}
+
+export async function updateGuestGroupInviteSent(group, inviteSent) {
+  const batch = writeBatch(db)
+  group.members.forEach(member => {
+    batch.update(doc(db, 'guests', member.id), { inviteSent: Boolean(inviteSent) })
   })
   await batch.commit()
 }
