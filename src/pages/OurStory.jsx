@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getOurStory, DEFAULT_MILESTONES } from '../hooks/useOurStory'
+import { useImageReveal } from '../hooks/useImageReveal'
 
 function ImagePlaceholder({ hint }) {
   return (
@@ -21,6 +22,19 @@ function ImagePlaceholder({ hint }) {
         </p>
       )}
     </div>
+  )
+}
+
+function MilestonePhoto({ src, alt }) {
+  const { loaded, imgRef, onLoad } = useImageReveal()
+  return (
+    <img
+      ref={imgRef}
+      src={src}
+      alt={alt}
+      onLoad={onLoad}
+      className={`w-full aspect-[4/3] object-cover rounded-lg ${loaded ? 'photo-reveal-landed' : 'photo-reveal-pending'}`}
+    />
   )
 }
 
@@ -84,7 +98,7 @@ export default function OurStory() {
                   {/* Image side */}
                   <div className={`flex-1 ${isEven ? 'md:pl-14' : 'md:pr-14'}`}>
                     {m.photoUrl
-                      ? <img src={m.photoUrl} alt={m.title} className="w-full aspect-[4/3] object-cover rounded-lg" />
+                      ? <MilestonePhoto src={m.photoUrl} alt={m.title} />
                       : <ImagePlaceholder hint={m.imageHint} />
                     }
                   </div>

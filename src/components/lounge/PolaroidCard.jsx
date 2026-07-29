@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { FUN_FACT_PROMPTS } from '../../hooks/useGuestProfiles'
+import { useImageReveal } from '../../hooks/useImageReveal'
 
 /** Deterministic rotation derived from the guest ID string (guest cards only). */
 function getRotation(id = '') {
@@ -258,6 +259,8 @@ export default function PolaroidCard({ profile, isOwn = false, onEdit }) {
 
 /** Photo (or placeholder) shown on the front face, shared between variants. */
 function PhotoArea({ profile, isOwn, onEdit, height, couple = false }) {
+  const { loaded, imgRef, onLoad } = useImageReveal()
+
   return (
     <div
       className={couple ? 'relative overflow-hidden' : 'overflow-hidden bg-sage/10 relative'}
@@ -277,9 +280,11 @@ function PhotoArea({ profile, isOwn, onEdit, height, couple = false }) {
       {profile.selfieUrl ? (
         <>
           <img
+            ref={imgRef}
             src={profile.selfieUrl}
             alt={profile.guestName?.split(' ')[0] ?? profile.guestName ?? '?'}
-            className="w-full h-full object-cover block"
+            className={`w-full h-full object-cover block ${loaded ? 'photo-reveal-landed' : 'photo-reveal-pending'}`}
+            onLoad={onLoad}
             style={{
               filter: `contrast(${couple ? 1.05 : 1.06}) saturate(${couple ? 1.08 : 1.1}) brightness(1.02)`,
               backfaceVisibility: 'hidden',

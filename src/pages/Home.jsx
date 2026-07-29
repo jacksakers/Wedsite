@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import CountdownTimer from '../components/CountdownTimer'
+import { useImageReveal } from '../hooks/useImageReveal'
 import { COUPLE_DISPLAY, VENUE_NAME, VENUE_CITY, WEDDING_TIME_DISPLAY, PARTNER_ONE_FIRST, PARTNER_ONE_MIDDLE, PARTNER_ONE_LAST, PARTNER_TWO_FIRST, PARTNER_TWO_MIDDLE, PARTNER_TWO_LAST } from '../constants/weddingInfo'
 import dockPhoto from '../assets/dock_photo.jpg'
 import dressedUp from '../assets/dressed_up.jpg'
@@ -11,29 +12,9 @@ import ocean from '../assets/ocean.jpg'
 import ring from '../assets/ring.jpg'
 
 function Polaroid({ src, alt, rotate, tapeRotate, className = '', delay = 0 }) {
-  const [loaded, setLoaded] = useState(false)
-  const imgRef = useRef(null)
+  const { loaded, imgRef, onLoad } = useImageReveal()
   // A slight extra tilt to fall from, distinct per-card, so the "landing" reads naturally.
   const pendingTiltRef = useRef(`${(Math.random() * 14 - 7).toFixed(1)}deg`)
-
-  // Only reveal once the image is fully decoded and ready to paint, so the
-  // "placement" animation never starts on top of a still-decoding/partial
-  // image (which otherwise reads as an abrupt pop rather than a smooth drop).
-  const reveal = (img) => {
-    if (!img) return
-    if (typeof img.decode === 'function') {
-      img.decode().then(() => setLoaded(true)).catch(() => setLoaded(true))
-    } else {
-      setLoaded(true)
-    }
-  }
-
-  useEffect(() => {
-    // If the image was already cached/decoded before mount, onLoad won't fire.
-    if (imgRef.current?.complete) {
-      reveal(imgRef.current)
-    }
-  }, [])
 
   return (
     <div className={className} style={{ transform: `rotate(${rotate})` }}>
@@ -68,7 +49,7 @@ function Polaroid({ src, alt, rotate, tapeRotate, className = '', delay = 0 }) {
                 ref={imgRef}
                 src={src}
                 alt={alt}
-                onLoad={(e) => reveal(e.currentTarget)}
+                onLoad={onLoad}
                 className="w-full h-full object-cover block"
                 style={{ filter: 'contrast(1.08) saturate(1.12) brightness(1.03)' }}
               />

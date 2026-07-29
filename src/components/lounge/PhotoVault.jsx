@@ -6,13 +6,18 @@ import {
   deleteVaultPhoto,
   VAULT_PAGE_SIZE,
 } from '../../hooks/useVaultPhotos'
+import { useImageReveal } from '../../hooks/useImageReveal'
 import { Link } from 'react-router-dom'
 
 const GOOGLE_PHOTOS_URL = import.meta.env.VITE_GOOGLE_PHOTOS_URL ?? '#'
 
 /** Single photo card in the vault grid. */
-function VaultPhotoCard({ photo, isAdmin, onDelete, deleting }) {
+function VaultPhotoCard({ photo, isAdmin, onDelete, deleting, staggerIndex = 0 }) {
   const firstName = photo.uploaderName?.split(' ')[0] ?? photo.uploaderName ?? 'Guest'
+  const { loaded, imgRef, onLoad } = useImageReveal()
+  // Stagger only the first couple rows so a big "load more" batch doesn't
+  // all queue up with growing delays.
+  const delay = Math.min(staggerIndex % 8, 7) * 60
 
   function handleDownload() {
     const a = document.createElement('a')
@@ -26,10 +31,13 @@ function VaultPhotoCard({ photo, isAdmin, onDelete, deleting }) {
   return (
     <div className="relative group rounded-lg overflow-hidden bg-sage/10 aspect-square">
       <img
+        ref={imgRef}
         src={photo.url}
         alt={`Photo by ${firstName}`}
-        className="w-full h-full object-cover"
+        className={`w-full h-full object-cover ${loaded ? 'photo-reveal-landed' : 'photo-reveal-pending'}`}
+        style={{ transitionDelay: loaded ? `${delay}ms` : '0ms' }}
         loading="lazy"
+        onLoad={onLoad}
       />
 
       {/* Hover overlay */}
@@ -326,13 +334,14 @@ export default function PhotoVault({ currentGuest, currentUser, isAdmin }) {
       {photos.length > 0 && (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-6">
-            {photos.map(photo => (
+            {photos.map((photo, i) => (
               <VaultPhotoCard
                 key={photo.id}
                 photo={photo}
                 isAdmin={isAdmin}
                 onDelete={handleDelete}
                 deleting={deleting}
+                staggerIndex={i}
               />
             ))}
           </div>

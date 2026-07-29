@@ -128,3 +128,32 @@ body::after {
     filter: none;
   }
 }
+
+/*
+ * Photo Reveal: A contained variant of the polaroid-drop effect for photos
+ * that live inside an already-clipped frame (grid thumbnails, profile
+ * squares) where a tilt would clip into ugly corner gaps. The image itself
+ * settles down and into focus once fully decoded, instead of the browser
+ * painting it line-by-line as bytes stream in.
+ */
+.photo-reveal-pending {
+  opacity: 0;
+  transform: translateY(-18px) scale(1.06);
+}
+
+.photo-reveal-landed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1.12, 0.36, 1),
+    opacity 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-reveal-pending,
+  .photo-reveal-landed {
+    transition: none;
+    transform: none;
+    opacity: 1;
+  }
+}

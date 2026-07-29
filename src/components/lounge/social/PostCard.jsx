@@ -2,6 +2,8 @@ import { useState, useRef, useCallback } from 'react'
 import { deletePost, togglePostLike, parseHashtags } from '../../../hooks/usePosts'
 import { notifyPostLike } from '../../../hooks/useNotifications'
 import { RichText, timeAgo } from '../../../utils/richText'
+import { useImageReveal } from '../../../hooks/useImageReveal'
+import Lightbox from '../../Lightbox'
 import PostComposer from './PostComposer'
 import CommentThread from './CommentThread'
 
@@ -40,9 +42,11 @@ export default function PostCard({
   const [showMenu, setShowMenu]       = useState(false)
   const [deleted, setDeleted]         = useState(false)
   const [sharing, setSharing]         = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const lastTap = useRef(0)
   const menuRef = useRef(null)
+  const { loaded: photoLoaded, imgRef: photoRef, onLoad: onPhotoLoad } = useImageReveal()
 
   const isOwn     = post.authorUid === currentUid
   const isCouple  = post.authorRole === 'bride' || post.authorRole === 'groom'
@@ -270,14 +274,21 @@ export default function PostCard({
         {post.photoUrl && (
           <div className="mt-3 rounded-lg overflow-hidden border border-sage/10">
             <img
+              ref={photoRef}
               src={post.photoUrl}
               alt="Post image"
-              className="w-full object-cover max-h-96"
+              className={`w-full object-cover max-h-96 cursor-zoom-in ${photoLoaded ? 'photo-reveal-landed' : 'photo-reveal-pending'}`}
               loading="lazy"
+              onLoad={onPhotoLoad}
+              onClick={e => { e.stopPropagation(); setLightboxOpen(true) }}
             />
           </div>
         )}
       </div>
+
+      {lightboxOpen && (
+        <Lightbox src={post.photoUrl} alt="Post image" onClose={() => setLightboxOpen(false)} />
+      )}
 
       {/* ── Actions bar ── */}
       <div className="flex items-center gap-4 px-4 pb-3 border-t border-sage/8 pt-2">
