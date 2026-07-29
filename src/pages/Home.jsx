@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import CountdownTimer from '../components/CountdownTimer'
 import { COUPLE_DISPLAY, VENUE_NAME, VENUE_CITY, WEDDING_TIME_DISPLAY, PARTNER_ONE_FIRST, PARTNER_ONE_MIDDLE, PARTNER_ONE_LAST, PARTNER_TWO_FIRST, PARTNER_TWO_MIDDLE, PARTNER_TWO_LAST } from '../constants/weddingInfo'
 import dockPhoto from '../assets/dock_photo.jpg'
@@ -9,43 +10,77 @@ import boardwalk from '../assets/boardwalk.jpg'
 import ocean from '../assets/ocean.jpg'
 import ring from '../assets/ring.jpg'
 
-function Polaroid({ src, alt, rotate, tapeRotate, className = '' }) {
+function Polaroid({ src, alt, rotate, tapeRotate, className = '', delay = 0 }) {
+  const [loaded, setLoaded] = useState(false)
+  const imgRef = useRef(null)
+  // A slight extra tilt to fall from, distinct per-card, so the "landing" reads naturally.
+  const pendingTiltRef = useRef(`${(Math.random() * 14 - 7).toFixed(1)}deg`)
+
+  // Only reveal once the image is fully decoded and ready to paint, so the
+  // "placement" animation never starts on top of a still-decoding/partial
+  // image (which otherwise reads as an abrupt pop rather than a smooth drop).
+  const reveal = (img) => {
+    if (!img) return
+    if (typeof img.decode === 'function') {
+      img.decode().then(() => setLoaded(true)).catch(() => setLoaded(true))
+    } else {
+      setLoaded(true)
+    }
+  }
+
+  useEffect(() => {
+    // If the image was already cached/decoded before mount, onLoad won't fire.
+    if (imgRef.current?.complete) {
+      reveal(imgRef.current)
+    }
+  }, [])
+
   return (
     <div className={className} style={{ transform: `rotate(${rotate})` }}>
-      <div className="relative">
-        {/* Tape */}
-        <div
-          className="absolute -top-4 left-1/2 w-16 h-6 rounded-sm z-10"
-          style={{
-            background: 'rgba(253, 230, 185, 0.55)',
-            transform: `translateX(-50%) rotate(${tapeRotate})`,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-          }}
-        />
-        {/* Polaroid frame */}
-        <div
-          className="bg-paper relative"
-          style={{
-            width: '224px',
-            padding: '12px 12px 44px 12px',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.25)',
-          }}
-        >
-          <div className="relative overflow-hidden" style={{ height: '200px' }}>
-            <img
-              src={src}
-              alt={alt}
-              className="w-full h-full object-cover block"
-              style={{ filter: 'contrast(1.08) saturate(1.12) brightness(1.03)' }}
-            />
-            {/* Glossy film sheen */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.0) 100%)',
-                mixBlendMode: 'screen',
-              }}
-            />
+      <div
+        className={loaded ? 'polaroid-landed' : 'polaroid-pending'}
+        style={{
+          '--polaroid-tilt': pendingTiltRef.current,
+          transitionDelay: loaded ? `${delay}ms` : '0ms',
+        }}
+      >
+        <div className="relative">
+          {/* Tape */}
+          <div
+            className="absolute -top-4 left-1/2 w-16 h-6 rounded-sm z-10"
+            style={{
+              background: 'rgba(253, 230, 185, 0.55)',
+              transform: `translateX(-50%) rotate(${tapeRotate})`,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+            }}
+          />
+          {/* Polaroid frame */}
+          <div
+            className="bg-paper relative"
+            style={{
+              width: '224px',
+              padding: '12px 12px 44px 12px',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.25)',
+            }}
+          >
+            <div className="relative overflow-hidden" style={{ height: '200px' }}>
+              <img
+                ref={imgRef}
+                src={src}
+                alt={alt}
+                onLoad={(e) => reveal(e.currentTarget)}
+                className="w-full h-full object-cover block"
+                style={{ filter: 'contrast(1.08) saturate(1.12) brightness(1.03)' }}
+              />
+              {/* Glossy film sheen */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.0) 100%)',
+                  mixBlendMode: 'screen',
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -69,8 +104,8 @@ export default function Home() {
 
           {/* Top polaroid row: 2 photos on md+, 1 on mobile */}
           <div className="flex justify-between items-end mb-10 px-2">
-            <Polaroid src={horse}  alt="At the dock"  rotate="6deg"  tapeRotate="-4deg" />
-            <Polaroid src={ocean}  alt="Dressed up"   rotate="-5deg" tapeRotate="3deg"  className="hidden sm:block" />
+            <Polaroid src={horse}  alt="At the dock"  rotate="6deg"  tapeRotate="-4deg" delay={0} />
+            <Polaroid src={ocean}  alt="Dressed up"   rotate="-5deg" tapeRotate="3deg"  className="hidden sm:block" delay={150} />
           </div>
 
           {/* Wedding text */}
@@ -98,8 +133,8 @@ export default function Home() {
 
           {/* Bottom polaroid row: 2 photos on md+, 1 on mobile */}
           <div className="flex justify-between items-start mt-10 px-2">
-            <Polaroid src={boardwalk}  alt="Lyon run"  rotate="-4deg" tapeRotate="2deg"  className="ml-auto sm:ml-0" />
-            <Polaroid src={ring} alt="La Leona"  rotate="7deg"  tapeRotate="-5deg" className="hidden sm:block" />
+            <Polaroid src={boardwalk}  alt="Lyon run"  rotate="-4deg" tapeRotate="2deg"  className="ml-auto sm:ml-0" delay={300} />
+            <Polaroid src={ring} alt="La Leona"  rotate="7deg"  tapeRotate="-5deg" className="hidden sm:block" delay={450} />
           </div>
 
         </div>

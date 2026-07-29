@@ -94,3 +94,37 @@ body::after {
 /* Hide scrollbar while keeping scroll functionality */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/*
+ * Polaroid Drop: Simulates a physical print being placed onto the page
+ * once its (high-res) image has actually finished loading, rather than
+ * revealing a half-decoded image line by line. The card starts lifted,
+ * tilted and slightly larger (as if held above the surface) then eases
+ * down with a soft spring overshoot as it "lands", while its shadow
+ * settles from a floating hover down to flat contact.
+ */
+.polaroid-pending {
+  opacity: 0;
+  transform: translateY(-60px) scale(1.08) rotate(var(--polaroid-tilt, 6deg));
+  filter: drop-shadow(0 26px 18px rgba(0, 0, 0, 0.35));
+}
+
+.polaroid-landed {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotate(0deg);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0));
+  transition:
+    transform 0.85s cubic-bezier(0.18, 1.32, 0.4, 1),
+    opacity 0.35s ease-out,
+    filter 0.85s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .polaroid-pending,
+  .polaroid-landed {
+    transition: none;
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
